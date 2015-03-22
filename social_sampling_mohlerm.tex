@@ -3,10 +3,49 @@
 \usepackage[utf8]{inputenc}
 \usepackage{lmodern}
 
+\usepackage[english]{babel}
+\usepackage{graphicx}
+\usepackage{subfigure}
+\usepackage{enumitem}
+\usepackage{url}
+\usepackage{color}
+\definecolor{orange}{rgb}{1,0.5,0}
+
+% Disable single lines at the start of a paragraph (Schusterjungen)
+
+\clubpenalty = 10000
+
+% Disable single lines at the end of a paragraph (Hurenkinder)
+
+\widowpenalty = 10000
+\displaywidowpenalty = 10000
+ 
+% allows for colored, easy-to-find todos
+
+\newcommand{\todo}[1]{\textsf{\textbf{\textcolor{orange}{[[TODO: #1]]}}}}
+
+% consistent references: use these instead of \label and \ref
+
+\newcommand{\lsec}[1]{\label{sec:#1}}
+\newcommand{\lssec}[1]{\label{ssec:#1}}
+\newcommand{\lfig}[1]{\label{fig:#1}}
+\newcommand{\ltab}[1]{\label{tab:#1}}
+\newcommand{\rsec}[1]{Section~\ref{sec:#1}}
+\newcommand{\rssec}[1]{Section~\ref{ssec:#1}}
+\newcommand{\rfig}[1]{Figure~\ref{fig:#1}}
+\newcommand{\rtab}[1]{Table~\ref{tab:#1}}
+\newcommand{\rlst}[1]{Listing~\ref{#1}}
+
+\newtheorem{definition}{Definition}[section]
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{corollary}{Corollary}[theorem]
+\newtheorem{lemma}[theorem]{Lemma}
+
+
+
 \title{\textbf{Social Sampling}}
 \author{Marcel Mohler\\
-		mohlerm@student.ethz.ch\\
-		09-922-998}
+		mohlerm@student.ethz.ch}
 
 \begin{document}
 
@@ -24,5 +63,8 @@
 
 \section{Results}
 \input{results.tex}
+
+\bibliographystyle{abbrv}
+\bibliography{bibliography}
 
 \end{document}
