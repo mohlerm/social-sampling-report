@@ -1,1 +1,10 @@
+Note that graph $G = (V,E)$ describes a social network with $V$ denoting the set of nodes and $E$ the set of edges. Further, $|V| = n$, $|E| = m$ and $u,v$ are nodes of G. The set of neighbors of $u$ is denoted by $N(u)$ and the degree of node $u$ by $d_u=|N(u)|$. We will always assume $d_u \geq 1  \forall u$. Additionally, $f : V \rightarrow \{0,1\}$ is a binary function which takes a node as input and outputs whether this node satisfies a certain property or not and $\bar{f} = \frac{1}{n}|\{u\;|\;f(u) = 1\}|$ is the fraction we wish to estimate.
 
+Our goal is to estimate the portion of nodes $v \in C$ such that $f(v) = 1$.
+We introduce the concept of a set of algorithms called sampler which is defined as follows:
+\definition[sampler]{A sampler is a randomized algorithm with input $r$ (sample size), $\epsilon$ (sampler accuracy), $\delta$ (sampler error) and $f$ and outputs $\hat{f}=\frac{1}{r}\sum\nolimits_{u\in S} f(u)$ with probability $1-\delta$ and $|\hat{f}-\bar{f}<\epsilon|$}
+
+We will start by looking at an intuitive approach for estimating $\bar{f}$ where we sample a set of nodes and poll each node $u$ to test if $f(u)=1$.
+The algorithm will return the fraction of nodes that satisfy the condition and we call this approach the \texttt{Naive} estimator \cite{goldreich1997sample}.
+\definition[Naive estimator]{}
+\definition[Ideal estimator]{}
