@@ -40,19 +40,20 @@ Note that in practice the drawing can be done by simply including a node $u$ wit
 \textbf{\textit{Proof: }}Recall that we want to poll $r$ uniformly chosen people independently and with replacement. The true fraction we want to approximate is $\bar{f}$. Let $F_u$ be the random variable for $f(u) = 1$.
 
 It follows that $F_u \sim  Bernoulli(\bar{f})$ and $F_1, F_2, \ldots , F_r$ are independent.
-Our \texttt{Naive} estimator is defined with $F = \sum_{u=1}^{r} F_u$ as $\hat{F} = F/r$.
+Our \texttt{Naive} estimator is defined with $F = \sum_{u=1}^{r} F_u$ as $\hat{f} = F/r$.
 We want our estimate to have accuracy $\epsilon$ and confidence $1-\delta$:
-$$\textbf{Pr}[|\hat{F}-\bar{f} | \leq \epsilon] \quad\geq\quad 1-\delta$$
-Since $F \sim Binomial(r,\bar{f})$, $\textbf{E}[F] = r\bar{f}$ follows by definition.
-Using the Chernoff Bounds the following inequality holds for any $\gamma \geq 0$
+$$\textbf{Pr}[|\hat{f}-\bar{f} | \leq \epsilon] \quad\geq\quad 1-\delta$$
+Since $F \sim Binomial(r,\bar{f})$, it follows
+$$\textbf{E}[F] \quad=\quad \textbf{E}[\sum_{u=1}^{r} F_u] \quad=\quad \sum_{u=1}^{r}\textbf{E}[F_u] \quad=\quad r\bar{f}$$
+Using the two-sided Chernoff Bounds the following inequality holds for any $\gamma \geq 0$
 $$\textbf{Pr}[|F-r\bar{f}|\geq \gamma r\bar{f}] \quad\leq\quad 2\exp(-\frac{\gamma^2}{2+\gamma}\cdot r\bar{f})$$
-$$\Leftrightarrow\quad \textbf{Pr}[|\hat{F}-\bar{f}|\geq \bar{f}\gamma] \quad\leq\quad 2\exp(-\frac{\gamma^2}{2+\gamma}\cdot r\bar{f})$$
-To achieve $\hat{F}$ bounded by $\epsilon$ we set $\epsilon = \gamma\bar{f}$, so $\gamma = \epsilon/\bar{f}$. Inserted in the formula above:
-$$\textbf{Pr}[|\hat{F}-\bar{f}| \geq \epsilon] \quad\leq\quad 2\exp (-\frac{\epsilon^2/\bar{f}^2}{2+\epsilon/\bar{f}}\cdot r\bar{f}) \quad=\quad 2\exp(-\frac{\epsilon^2}{2\bar{f}+\epsilon}\cdot r)$$
+$$\Leftrightarrow\quad \textbf{Pr}[|\hat{f}-\bar{f}|\geq \bar{f}\gamma] \quad\leq\quad 2\exp(-\frac{\gamma^2}{2+\gamma}\cdot r\bar{f})$$
+To achieve $\hat{f}$ bounded by $\epsilon$ we set $\epsilon = \gamma\bar{f}$, so $\gamma = \epsilon/\bar{f}$. Inserted in the formula above:
+$$\textbf{Pr}[|\hat{f}-\bar{f}| \geq \epsilon] \quad\leq\quad 2\exp (-\frac{\epsilon^2/\bar{f}^2}{2+\epsilon/\bar{f}}\cdot r\bar{f}) \quad=\quad 2\exp(-\frac{\epsilon^2}{2\bar{f}+\epsilon}\cdot r)$$
 Since the largest possible value of $\bar{f}$ is 1, because all nodes $u$ have $f(u) = 1$, the term in $\exp(\cdot)$ is an upper bound
 $$\frac{\epsilon^2}{2\bar{f}+\epsilon} \quad\geq\quad \frac{\epsilon^2}{2+\epsilon}$$
 and therefore
-$$\textbf{Pr}[|\hat{F}-\bar{f}| \geq \epsilon] \quad\leq\quad 2\exp(-\frac{\epsilon^2}{2+\epsilon}\cdot r)$$
+$$\textbf{Pr}[|\hat{f}-\bar{f}| \geq \epsilon] \quad\leq\quad 2\exp(-\frac{\epsilon^2}{2+\epsilon}\cdot r)$$
 Remember we want the confidence of the estimator bounded by $1-\delta$, this means
 $$2\exp(-\frac{\epsilon^2}{2+\epsilon}\cdot r) \leq \delta$$
 $$\Leftrightarrow\quad \exp(\frac{\epsilon^2}{2+\epsilon}\cdot r) \quad\geq\quad \frac{2}{\delta}$$
@@ -78,16 +79,18 @@ Even though the portion of \texttt{RED} nodes is way smaller, using the \texttt{
 %---end figure network a--------------------------------
 
 To circumvent this behaviour we introduce an improved sampler called \texttt{Ideal} estimator that divides each $f(v)$ by $d_v$. The pseudocode is shown in Alg. 2.
+We are going to provide a proof that this sampler is indeed unbiased and present bounds on the sampling size.
 %---algo2----------------------------------------------
 \begin{algorithm*}[!htb]
 \caption{\small {\bf Ideal size estimator}($G, f, r$)}
 \begin{code}
-{\bf Input:} Graph $G=(V,E)$, function $f : V \rightarrow \{0,1\}$, sample size $r$, distribution $p$ \\
-{\bf Output:} $\hat{f}=\frac{1}{r}\sum\nolimits_{u\in S} f(u)$\\
+{\bf Input:} Graph $G=(V,E)$, function $f : V \rightarrow \{0,1\}$, sample size $r$,\\ distribution $p$ \\
+{\bf Output:} $\hat{f}=\frac{1}{nr}\sum\nolimits_{u\in S}\frac{1}{p_u}\sum\nolimits_{v\in N(u)} f(v)/d_v$\\
 \\
 \uln \>\ubegin\\
 \uln \>\>initialize $f^*$ with 0 \\
-\uln \>\>randomly draw a set $S$ with r samples from $V$ with replacement\\
+\uln \>\>randomly draw a set $S$ with r samples from $V$ with\\
+\>   \>\>probability $p_u$ and with replacement\\
 \uln \>\>\ufor each element $u \subset S$ \udo\\
 \uln \>\>\>$f^* = f^* + f(u)$ \\
 \uln \>\>\uend\\
@@ -98,3 +101,11 @@ To circumvent this behaviour we introduce an improved sampler called \texttt{Ide
 \end{algorithm*}
 %---end algo2------------------------------------------
 
+First and foremost, we introduce $A$ as adjacency matrix of the graph $G$, which means $A_uv = 1$ if and only if $(u,v) \in E$. $D$ is called the diagonal matrix such that $D_{uu} = d_u$.
+Let the diagonal matrix $P$ be $P_{uu} = p_u$ with $\sum\nolimits_{u}p_u$ for any vector $p \in \mathbb{R}^n$.
+Our \texttt{Ideal} estimator is defined with $F = \frac{e_u^TAD^{-1}f}{np_u}$ as $\hat{f} = F/r$.
+
+\begin{lemma}
+  The random variable $F$ satisfies $E[F] = \bar{f}$ and \\
+  $E[F^2] = \frac{1}{n^2}f^TD^{-1}AP^{-1}AD^{-1}f$.
+\end{lemma}
