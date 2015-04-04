@@ -5,7 +5,7 @@ Our goal is to estimate the portion of nodes $v \in C$ such that $f(v) = 1$.
 We introduce the concept of a set of algorithms called sampler which is defined as follows:
 \begin{definition}[sampler]
   A sampler $\hat{f}(n,\epsilon,\delta)$ is a randomized algorithm with input $r$ (sample size), $\epsilon$ (sampler accuracy), $\delta$ (sampler error) and function $f$ which outputs $\hat{f}=\frac{1}{r}\sum\nolimits_{u\in S} f(u)$ with probability $1-\delta$ and $|\hat{f}-\bar{f}<\epsilon|$. Namely,
-  $$P[|\hat{f}(n,\epsilon,\delta)-\bar{f} | > \epsilon] < \delta$$
+  $$\textbf{Pr}[|\hat{f}(n,\epsilon,\delta)-\bar{f} | > \epsilon] < \delta$$
 \end{definition}
 
 Note, that this definition of a sampler is covered in the definition of a statistical estimator.
@@ -35,12 +35,34 @@ The algorithm will return the fraction of nodes that satisfy the condition and w
 %---end algo2------------------------------------------
 Note that in practice the drawing can be done by simply including a node $u$ with probability $\frac{1}{n}$.
 \begin{theorem}
-  The \texttt{Naive} estimator requires $O(\frac{1}{\epsilon^2})$ sample nodes
+  The \texttt{Naive} estimator with accuracy $\epsilon$ and confidence $1-\delta$ requires $O(\frac{1}{\epsilon^2})$ sample nodes
 \end{theorem}
-\textbf{\textit{Proof: }}We set the sample size $r = \frac{ln(2/\gamma)}{2\epsilon^2}$ and consider the set of nodes $S$ with elements $u$ being drawn independently and uniformly distributed.
-Using the Chernoff Bound the following inequality holds:
-$$P[$$ 
+\textbf{\textit{Proof: }}Recall that we want to poll $r$ uniformly chosen people independently and with replacement. The true fraction we want to approximate is $\bar{f}$. Let $F_u$ be the random variable for $f(u) = 1$.
 
+It follows that $F_u \sim  Bernoulli(\bar{f})$ and $F_1, F_2, \ldots , F_r$ are independent.
+Let $F_1, F_2, \ldots , F_r$ and $\hat{F} = X/r$ (our estimator).
+We want our estimate to have accuracy $\epsilon$ and confidence $1-\delta$:
+$$\textbf{Pr}[|\hat{F}-\bar{f} | \leq \epsilon] \quad\geq\quad 1-\delta$$
+Since $F \sim Binomial(r,\bar{f})$, $\textbf{E}[F] = r\bar{f}$ follows by definition.
+Using the Chernoff Bounds the following inequality holds for any $\gamma \geq 0$
+$$\textbf{Pr}[|F-r\bar{f}|\geq \gamma r\bar{f}] \quad\leq\quad 2\exp(-\frac{\gamma^2}{2+\gamma}\cdot r\bar{f})$$
+$$\Leftrightarrow\quad \textbf{Pr}[|\hat{F}-\bar{f}|\geq \bar{f}\gamma] \quad\leq\quad 2\exp(-\frac{\gamma^2}{2+\gamma}\cdot r\bar{f})$$
+To achieve $\hat{F}$ bounded by $\epsilon$ we set $\epsilon = \gamma\bar{f}$, so $\gamma = \epsilon/\bar{f}$. Inserted in the formula above:
+$$\textbf{Pr}[|\hat{F}-\bar{f}| \geq \epsilon] \quad\leq\quad 2\exp (-\frac{\epsilon^2/\bar{f}^2}{2+\epsilon/\bar{f}}\cdot r\bar{f}) \quad=\quad 2\exp(-\frac{\epsilon^2}{2\bar{f}+\epsilon}\cdot r)$$
+Since the largest possible value of $\bar{f}$ is 1, because all nodes $u$ have $f(u) = 1$, the term in $\exp(\cdot)$ is an upper bound
+$$\frac{\epsilon^2}{2\bar{f}+\epsilon} \quad\geq\quad \frac{\epsilon^2}{2+\epsilon}$$
+and therefore
+$$\textbf{Pr}[|\hat{F}-\bar{f}| \geq \epsilon] \quad\leq\quad 2\exp(-\frac{\epsilon^2}{2+\epsilon}\cdot r)$$
+Remember we want the confidence of the estimator bounded by $1-\delta$, this means
+$$2\exp(-\frac{\epsilon^2}{2+\epsilon}\cdot r) \leq \delta$$
+$$\Leftrightarrow\quad \exp(\frac{\epsilon^2}{2+\epsilon}\cdot r) \quad\geq\quad \frac{2}{\delta}$$
+$$\Leftrightarrow\quad \frac{\epsilon^2}{2+\epsilon}\cdot r \quad\geq\quad \ln\frac{2}{\delta}$$
+$$\Leftrightarrow\quad r \quad\geq\quad \frac{2+\epsilon}{\epsilon^2}\ln\frac{2}{\delta}$$
+Since $\frac{2+\epsilon}{\epsilon^2}\ln\frac{2}{\delta}$ lies within $O(\epsilon^2)$ this concludes the proof.$\hfill\square$
+% We set the sample size $r = \frac{ln(2/\gamma)}{2\epsilon^2}$ and consider the set of nodes $S$ with elements $u$ being drawn independently and uniformly distributed.
+% Using the Chernoff Bound the following inequality holds:
+% $$P[$$ 
+\newline\newline
 As briefly mentioned in the introduction the network structure is of great importance to the sampling method.
 We will illustrate this on a small example. Consider a graph structure as shown in \rfig{network_a} where a single \texttt{RED} node is connected to several \texttt{BLUE} nodes.
 Even though the portion of \texttt{RED} nodes is way smaller, using the \texttt{Naive} estimator the result is very biased towards the decision of {RED}.
