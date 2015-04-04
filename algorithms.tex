@@ -30,7 +30,7 @@ The algorithm will return the fraction of nodes that satisfy the condition and w
   \uln \>\ureturn $\hat{f} = f^*/r$ \\
   \uln \>\uend\\ 
   \end{code}
-  \label{alg:main}
+  \label{algnaive}
 \end{algorithm*}
 %---end algo2------------------------------------------
 Note that in practice the drawing can be done by simply including a node $u$ with probability $\frac{1}{n}$.
@@ -40,7 +40,7 @@ Note that in practice the drawing can be done by simply including a node $u$ wit
 \textbf{\textit{Proof: }}Recall that we want to poll $r$ uniformly chosen people independently and with replacement. The true fraction we want to approximate is $\bar{f}$. Let $F_u$ be the random variable for $f(u) = 1$.
 
 It follows that $F_u \sim  Bernoulli(\bar{f})$ and $F_1, F_2, \ldots , F_r$ are independent.
-Let $F_1, F_2, \ldots , F_r$ and $\hat{F} = X/r$ (our estimator).
+Our \texttt{Naive} estimator is defined with $F = \sum_{u=1}^{r} F_u$ as $\hat{F} = F/r$.
 We want our estimate to have accuracy $\epsilon$ and confidence $1-\delta$:
 $$\textbf{Pr}[|\hat{F}-\bar{f} | \leq \epsilon] \quad\geq\quad 1-\delta$$
 Since $F \sim Binomial(r,\bar{f})$, $\textbf{E}[F] = r\bar{f}$ follows by definition.
@@ -66,30 +66,8 @@ Since $\frac{2+\epsilon}{\epsilon^2}\ln\frac{2}{\delta}$ lies within $O(\epsilon
 As briefly mentioned in the introduction the network structure is of great importance to the sampling method.
 We will illustrate this on a small example. Consider a graph structure as shown in \rfig{network_a} where a single \texttt{RED} node is connected to several \texttt{BLUE} nodes.
 Even though the portion of \texttt{RED} nodes is way smaller, using the \texttt{Naive} estimator the result is very biased towards the decision of {RED}.
-
-To circumvent this behaviour we introduce an improved sampler called \texttt{Ideal} estimator that divides each $f(v)$ by $d_v$. The pseudocode is shown below:
-%---algo2----------------------------------------------
-% \begin{algorithm*}[!htb]
-% \caption{\small {\bf Ideal size estimator}($G, f, r$)}
-% \begin{code}
-% {\bf Input:} Graph $G=(V,E)$, function $f : V \rightarrow \{0,1\}$, sample size $r$, distribution $p$ \\
-% {\bf Output:} $\hat{f}=\frac{1}{r}\sum\nolimits_{u\in S} f(u)$\\
-% \\
-% \uln \>\ubegin\\
-% \uln \>\>initialize $f^*$ with 0 \\
-% \uln \>\>randomly draw a set $S$ with r samples from $V$ with replacement\\
-% \uln \>\>\ufor each element $u \subset S$ \udo\\
-% \uln \>\>\>$f^* = f^* + f(u)$ \\
-% \uln \>\>\uend\\
-% \uln \>\ureturn $\hat{f} = f^*/r$ \\
-% \uln \>\uend\\ 
-% \end{code}
-% \label{alg:main}
-% \end{algorithm*}
-%---end algo2------------------------------------------
-
 %---figure network a------------------------------------
-\begin{figure}
+\begin{figure}[!ht]
   \begin{center}
     \includegraphics{fig1a}
     \caption{neighbor scaling}
@@ -98,3 +76,25 @@ To circumvent this behaviour we introduce an improved sampler called \texttt{Ide
   \end{center}
 \end{figure}
 %---end figure network a--------------------------------
+
+To circumvent this behaviour we introduce an improved sampler called \texttt{Ideal} estimator that divides each $f(v)$ by $d_v$. The pseudocode is shown in Alg. 2.
+%---algo2----------------------------------------------
+\begin{algorithm*}[!htb]
+\caption{\small {\bf Ideal size estimator}($G, f, r$)}
+\begin{code}
+{\bf Input:} Graph $G=(V,E)$, function $f : V \rightarrow \{0,1\}$, sample size $r$, distribution $p$ \\
+{\bf Output:} $\hat{f}=\frac{1}{r}\sum\nolimits_{u\in S} f(u)$\\
+\\
+\uln \>\ubegin\\
+\uln \>\>initialize $f^*$ with 0 \\
+\uln \>\>randomly draw a set $S$ with r samples from $V$ with replacement\\
+\uln \>\>\ufor each element $u \subset S$ \udo\\
+\uln \>\>\>$f^* = f^* + f(u)$ \\
+\uln \>\>\uend\\
+\uln \>\ureturn $\hat{f} = f^*/r$ \\
+\uln \>\uend\\ 
+\end{code}
+\label{algideal}
+\end{algorithm*}
+%---end algo2------------------------------------------
+
