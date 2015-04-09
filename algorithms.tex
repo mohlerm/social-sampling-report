@@ -1,5 +1,6 @@
+\label{algorithms}
 \subsection{Definitions}
-Note that graph $G = (V,E)$ describes a social network with $V$ denoting the set of nodes and $E$ the set of edges. Further, $|V| = n$, $|E| = m$ and $u,v$ are nodes of G. The set of neighbors of $u$ is denoted by $N(u)$ and the degree of node $u$ by $d_u=|N(u)|$. We will always assume $d_u \geq 1  \forall u$. Additionally, $f : V \rightarrow \{0,1\}$ is a binary function which takes a node as input and outputs whether this node satisfies a certain property or not and $\bar{f} = \frac{1}{n}|\{u\;|\;f(u) = 1\}|$ is the fraction we wish to estimate.
+Note that the graph $G = (V,E)$ describes a social network with $V$ denoting the set of nodes and $E$ the set of edges. Further, $|V| = n$, $|E| = m$ and $u,v$ are nodes of G. The set of neighbors of $u$ is denoted by $N(u)$ and the degree of node $u$ by $d_u=|N(u)|$. We will always assume $d_u \geq 1  \forall u$. Additionally, $f : V \rightarrow \{0,1\}$ is a binary function which takes a node as input and outputs whether this node satisfies a certain property or not and $\bar{f} = \frac{1}{n}|\{u\;|\;f(u) = 1\}|$ is the fraction we wish to estimate.
 The algorithms use $S$ as the set of nodes called "sample" with $|S| = r$ (sample size).
 We will denote the probability distribution by a a vector $p \in \mathbb{R}^n$ with $\sum_up_u = 1$.
 
@@ -8,13 +9,14 @@ We introduce the concept of a set of algorithms called sampler which is defined 
 \begin{definition}[sampler]
   A sampler $\hat{f}(n,\epsilon,\delta)$ is a randomized algorithm with input $r$ (sample size), $\epsilon$ (sampler accuracy), $\delta$ (sampler error), $p$ (probability distribution) and function $f$ which outputs an expectation $\hat{f}$ with probability $1-\delta$ and $|\hat{f}-\bar{f}<\epsilon|$. Namely,
   $$\textbf{Pr}[|\hat{f}(n,\epsilon,\delta,p)-\bar{f} | > \epsilon] < \delta$$
+  \label{defsampler}
 \end{definition}
 
 Note, that this definition of a sampler is in fact a special case of a statistical estimator.
 Therefore we can analyze our sampler for estimator properties like bias and we will use both expressions equivalently.
 \subsection{\texttt{Naive} sampler}
-We will start by looking at an intuitive approach for estimating $\bar{f}$ where we sample a set of nodes and poll each node $u$ to test if $f(u)=1$.
-The algorithm will return the fraction of nodes that satisfy the condition and we call this approach the \texttt{Naive} estimator \cite{goldreich1997sample}.
+We will start by looking at an intuitive approach \cite{goldreich1997sample} for estimating $\bar{f}$ where we sample a set of nodes and poll each node $u$ to test if $f(u)=1$.
+The algorithm will return the fraction of nodes that satisfy the condition and we call this approach the \texttt{Naive} sampler presented in pseudo code in Alg. \ref{algnaive}.
 
 %---algo1----------------------------------------------
 \begin{algorithm*}[!htb]
@@ -87,7 +89,7 @@ Even though the portion of \texttt{RED} nodes is way smaller, using the \texttt{
 \end{figure}
 %---end figure network a--------------------------------
 
-We introduce a social polling sampler called \texttt{Ideal} sampler that circumvents this bias by dividing each $f(v)$ by $d_v$. The pseudo-code is shown in Alg. 2.
+We introduce a social polling sampler called \texttt{Ideal} sampler that circumvents this bias by dividing each $f(v)$ by $d_v$. The pseudo-code is shown in Alg. \ref{algideal}.
 We are going to provide a proof that this sampler is indeed unbiased and again present bounds on the sampling size.
 %---algo2----------------------------------------------
 \begin{algorithm*}[!htb]
@@ -170,6 +172,7 @@ Be aware that this sampler uses an additional parameter called $k$. This is the 
 We are aware this contradicts the initial definition of a sampler but we since $k$ has no usage in the other samplers we will stick to this defintition.
 
 In this implementation we will pick each neighbor with probability inversly proportional to their degrees and pick the subset of $k$ neighbors with probability $1/|T_u|$.
+A pseudo code implementation is presented in Alg. \ref{algsparse}.
 
 There are no proofs on the bound of the sample size yet and deriving one is considered out of the scope of this paper.
 %---algo3----------------------------------------------
@@ -200,10 +203,11 @@ There are no proofs on the bound of the sample size yet and deriving one is cons
 \end{algorithm*}
 %---end algo3------------------------------------------
 \subsection{\texttt{Expectation} sampler}
-The final presented sampler is based on the research of Rothschild and Wolfers in \cite{rothschild2009forecasting}. They showed with statistical measurements that using a method called "expectation polling" can lead to significantly better estimations than the classical "intent polling".
+The final presented sampler is based on the research and ideas of Rothschild and Wolfers in \cite{rothschild2009forecasting}. They showed with statistical measurements that using a method called "expectation polling" can lead to significantly better estimations than the classical "intent polling".
 In practise this means posing a "\textit{Which party will win the next vote?}" instead of "\textit{Who do you vote for?}".
 They base this on the assumption that a respondent often gives an aggregate view of its friends and family (i.e. neighbors in a social network).
-The presented algorithm that aims to implement expectation polling let each sampled node $u$ report a fraction instead of a simple 0/1. The fraction represents the estimatated fraction of the neighbors with $f(v) = 1$.
+The presented algorithm Alg. \ref{algexpec} that aims to implement expectation polling let each sampled node $u$ report a fraction instead of a simple 0/1. The fraction represents the estimatated fraction of the neighbors with $f(v) = 1$.
+
 Compared with the \texttt{Ideal} sampler there exist a similar bound on $r$ and we present this without a proof:
 \begin{theorem}
 Using $r = \frac{4m\lambda_2^2||D^{-1/2}\mathds{F}||||D^{-1/2}(\mathds{1}-\mathds{F})||}{n^2\epsilon^2\delta}$, with probability $1-\delta$ the \texttt{Expectation} sampler will give an estimate $\hat{f}$ such that $|\hat{f}-\bar{f}|< \epsilon$.  

@@ -1,6 +1,37 @@
+\subsection{Setup}
 Dasgupta et al. \cite{dasgupta2012social} performed various experiments to compare the performance of the presented samplers.
 They focused on two large, publicly available databases \texttt{LiveJournal} and \texttt{DBLP}.
 
-The \texttt{LiveJournal} network contains 5.36M nodes and approximately 160M edges and is based on a snapshot of the social network \url{http://livejournal.com} in March 2008.
-The \texttt{DBLP} network contains 368K nodes and 8M edges and consists of the content of the DBLP database located at \url{http://www.informatik.uni-trier.de/~ley/db/}.
+The \texttt{LiveJournal} network contains 5.36M nodes and approximately 160M edges and is based on a snapshot of the social network \url{http://livejournal.com} in March 2008. In addition to the network they extracted the users age, location (city, state, country) and a list of interests where available on the users public profile.
+The \texttt{DBLP} network contains 368K nodes and 8M edges and consists of the content of the DBLP database located at \url{http://www.informatik.uni-trier.de/~ley/db/}. The nodes stand for authors while the edges represent co-authorship on some publication. The node attributes are formed by the authors publication venues, however only the 100 most popular venues were considered. 
 
+Since the samplers have been designed keeping the Definition \ref{defsampler} in mind, recall that they provide an additive $\epsilon$-approximation. So most importantly we measure the absolute error of each sampler with respect to the true value. If our estimator outputs $\hat{f}$ approximating $\bar{f}$ we measure the error as $|\bar{f}-\hat{f}|$.
+
+To get a relation between error and sample size we vary the sample size $r$ from a minimum of $r = 100$ to $r = 50000$. We use the distributions mentioned in chapter \ref{algorithms}: uniform at random (\texttt{unif}), proportional to the degree of the node (\texttt{deg}) and additionally, proportional to the square root of the degree of the node (\texttt{sqrtdeg}). 
+\subsection{Performance on LiveJournal}
+%---figure network a------------------------------------
+\begin{figure}[!ht]
+  \begin{center}
+    \includegraphics[width=\linewidth]{fig2_3}
+    \lfig{livejournal1}
+  \end{center}
+\end{figure}
+%---end figure network a--------------------------------
+\subsection{Performance on DBLP}
+%---figure network a------------------------------------
+\begin{figure}[!ht]
+  \begin{center}
+    \includegraphics[width=0.5\linewidth]{fig4}
+    \lfig{dblp}
+  \end{center}
+\end{figure}
+%---end figure network a--------------------------------
+
+%---figure network a------------------------------------
+\begin{figure}[!ht]
+  \begin{center}
+    \includegraphics[width=0.5\linewidth]{fig7b}
+    \lfig{sparsity}
+  \end{center}
+\end{figure}
+%---end figure network a--------------------------------

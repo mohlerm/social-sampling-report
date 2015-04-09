@@ -1,6 +1,6 @@
 Polling is a widely used method to achieve a public opinion on a certain subject gained from a sample. For example, one could think of polls before \textit{Bundesrat} elections to estimate the outcome or polls to receive student's opinions on their visited lectures.
 Following the first example, pollers would like to ask only a subset of the population while still get significant results which party might win the vote. This is commonly known as sampling.
-The two fundamental quantities of interest in polling are \textit{number of samples} (how many citizens to ask) and the \textit{error rate} (error caused by observing a sample instead of the whole voters). They are related in a way, that if we wish to approximate a fraction within an additive error of $\epsilon$, roughly $O(1/\epsilon^{2})$ samples are both necessary and sufficient.
+The two fundamental quantities of interest in polling are \textit{number of samples} (how many citizens to ask) and the \textit{error rate} (error caused by observing a sample instead of the whole voters). They are related in a way, that if we wish to approximate a fraction within an additive error of $\epsilon$, $O(1/\epsilon^{2})$ samples are both necessary and sufficient.
 
 In practice we want to have a low error but still only require as little samples as possible.
 Since the sampling costs are usually a significant burden, research has proposed several alternatives to reduce the sample size.
@@ -14,5 +14,5 @@ In this paper we present an extended idea of "expectation polling" called "socia
 Their idea is to reduce the sampling size by asking a member of a social network considering they will be able to summarize their friends opinions when asked the right questions.
 Even though this means that the actual structure of the network plays a role when analyzing the error, they assume a saving in number of samples by a factor of around \textit{d}, the average amount of friends of a member in a social network.
 
-What follows are various social sampling strategies with the aim to observe sampling bias and sampling error.
-We will also provide precise characterizations on errors and how they behave applied to large, real-world graphs.
+What follows is a formal introduction to a group of estimators we call \textit{samplers} as well as concrete instances of these type of estimators. We analyze sampling bias and provide theoretical relations between sample size and sampling error including some proofs.
+We will also provide precise characterizations on errors and how they behave applied to large, real-world networks.
