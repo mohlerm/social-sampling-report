@@ -60,10 +60,12 @@ $$\frac{\epsilon^2}{2\bar{f}+\epsilon} \quad\geq\quad \frac{\epsilon^2}{2+\epsil
 and therefore
 $$\textbf{Pr}[|\hat{f}-\bar{f}| \geq \epsilon] \quad\leq\quad 2\exp(-\frac{\epsilon^2}{2+\epsilon}\cdot r)$$
 Remember we want the confidence of the estimator bounded by $1-\delta$, this means
-$$2\exp(-\frac{\epsilon^2}{2+\epsilon}\cdot r) \leq \delta$$
-$$\Leftrightarrow\quad \exp(\frac{\epsilon^2}{2+\epsilon}\cdot r) \quad\geq\quad \frac{2}{\delta}$$
-$$\Leftrightarrow\quad \frac{\epsilon^2}{2+\epsilon}\cdot r \quad\geq\quad \ln\frac{2}{\delta}$$
-$$\Leftrightarrow\quad r \quad\geq\quad \frac{2+\epsilon}{\epsilon^2}\ln\frac{2}{\delta}$$
+\begin{align*}
+\quad&2\exp(-\frac{\epsilon^2}{2+\epsilon}\cdot r) \leq \delta\\
+&\Leftrightarrow\quad \exp(\frac{\epsilon^2}{2+\epsilon}\cdot r) \quad\geq\quad \frac{2}{\delta}\\
+&\Leftrightarrow\quad \frac{\epsilon^2}{2+\epsilon}\cdot r \quad\geq\quad \ln\frac{2}{\delta}\\
+&\Leftrightarrow\quad r \quad\geq\quad \frac{2+\epsilon}{\epsilon^2}\ln\frac{2}{\delta}
+\end{align*}
 Since $\frac{2+\epsilon}{\epsilon^2}\ln\frac{2}{\delta}$ lies within $O(\frac{1}{\epsilon^2})$ this concludes the proof.$\hfill\square$
 % We set the sample size $r = \frac{ln(2/\gamma)}{2\epsilon^2}$ and consider the set of nodes $S$ with elements $u$ being drawn independently and uniformly distributed.
 % Using the Chernoff Bound the following inequality holds:
