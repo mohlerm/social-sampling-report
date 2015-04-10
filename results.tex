@@ -2,8 +2,9 @@
 Dasgupta et al. \cite{dasgupta2012social} performed various experiments to compare the performance of the presented samplers.
 They focused on two large, publicly available databases \texttt{LiveJournal} and \texttt{DBLP}.
 
-The \texttt{LiveJournal} network contains 5.36M nodes and approximately 160M edges and is based on a snapshot of the social network \url{http://livejournal.com} in March 2008. In addition to the network they extracted the users age, location (city, state, country) and a list of interests where available on the users public profile.
-The \texttt{DBLP} network contains 368K nodes and 8M edges and consists of the content of the DBLP database located at \url{http://www.informatik.uni-trier.de/~ley/db/}. The nodes stand for authors while the edges represent co-authorship on some publication. The node attributes are formed by the authors publication venues, however only the a random set of 100 venues with probability proportional to their popularity were considered. 
+The \texttt{LiveJournal} network contains 5.36M nodes and approximately 160M edges and is based on a snapshot of the social network \url{http://livejournal.com} in March 2008. In addition to the network they extracted the users age, location (city, state, country) and a list of interests where available on the users public profiles. They used additional filter techniques to remove invalid entries, lowering the amount of nodes to 40\%-60\% per attribute.
+
+The \texttt{DBLP} network contains 368K nodes and 8M edges and consists of the content of the DBLP database located at \url{http://www.informatik.uni-trier.de/~ley/db/}. The nodes stand for authors while the edges represent co-authorship on some publication. The node attributes are formed by the authors publication venues, however only a random set of 100 venues with probability proportional to their popularity were considered. 
 
 Since the samplers have been designed keeping the Definition \ref{defsampler} in mind, recall that they provide an additive $\epsilon$-approximation. So most importantly we measure the absolute error of each sampler with respect to the true value. If our estimator outputs $\hat{f}$ approximating $\bar{f}$ we measure the error as $|\bar{f}-\hat{f}|$.
 
@@ -13,11 +14,12 @@ The results were achieved using a median of means approach. This is commonly use
 This considers choosing partitions at random and prevents the need to specify the partition strategy when comparing the different samplers.
 
 \subsection{Performance on LiveJournal}
-For analyzing the performance on LiveJournal we are interested in a set of five cities, five states, five countries, a set of ages, age-buckets and a set if interests (sports) each with a typical size ranging from 0.4\% to 4\%.
+For analyzing the performance on LiveJournal we are interested in a set of five cities, five states, five countries, a set of ages (20, 25, 30, 35 and 40), age-buckets ([20,29),...,) and a set of interests (various sports) each with a typical size ranging from 0.4\% to 4\%.
 The correlation between number of samples and absolute error for the presented samplers is displayed in \rfig{livejournal1}.
 
 As expected, in all scenarios, the error decreases faster than linearly with an increased number of samples.
 Generally \texttt{deg} and \texttt{sqrtdeg} show similar performance and we will not discuss the details in this paper.
+To get a feeling on $r$ in relation to the whole network, keep in mind that when sampling 10000 nodes we are at 2\% (on average) of the whole network, an already significant sample size.
 
 In all attributes the \texttt{Ideal} sampler shows the best performance, for example in cities until about 10000 samples its error is about half as \texttt{Naive}'s.
 \texttt{Naive} generally performs better than \texttt{Expec} but surprisingly at states and countries it performs similar to the \texttt{Ideal} estimator.
@@ -47,7 +49,8 @@ The improvements offered by \texttt{Ideal} over \texttt{Naive} are even larger. 
 %---end figure network a--------------------------------
 \subsection{Effect of sparsity parameter}
 When designing the \texttt{Sparse} sampler Alg. \ref{algsparse} we introduced a new parameter $k$ which we call the sparsity parameter since it defines the amount of the picked neighbors.
-The measurements show that using $k=9$ seems to be almost as good as sampling only three neighbors.
+The measurements show that using $k=9$ does not lower the error significantly, especially considering sample sizes above 400.
+We assume this is related to the fact that the network has strong connectivity properties.
 %---figure network a------------------------------------
 \begin{figure}[!ht]
   \begin{center}

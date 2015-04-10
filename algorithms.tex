@@ -4,16 +4,16 @@ Note that the graph $G = (V,E)$ describes a social network with $V$ denoting the
 The algorithms use $S$ as the set of nodes called \textit{sample} with $|S| = r$, the sample size.
 We will denote the probability distribution by a a vector $p \in \mathbb{R}^n$ with $\sum_up_u = 1$.
 
-Our goal is to achieve a good estimation of $\bar{f}$ using as little samples $S$ as possible with respect to an error bound $\epsilon$.
+Our goal is to achieve a good estimation of $\bar{f}$ using as little samples $S$ as possible with respect to an additive error bound $\epsilon$.
 We introduce the concept of a set of algorithms called sampler which is defined as follows:
 \begin{definition}[sampler]
+\label{defsampler}
   A sampler $\hat{f}(n,\epsilon,\delta)$ is a randomized algorithm with input $r$ (sample size), $\epsilon$ (sampler accuracy), $\delta$ (sampler error), $p$ (probability distribution) and function $f$ which outputs an expectation $\hat{f}$ with probability $1-\delta$ and $|\hat{f}-\bar{f}<\epsilon|$. Namely,
-  $$\mathds{P}[|\hat{f}(n,\epsilon,\delta,p)-\bar{f} | > \epsilon] < \delta$$
-  \label{defsampler}
+  $$\mathds{P}[|\hat{f}(n,\epsilon,\delta,p)-\bar{f} | > \epsilon] < \delta \;.$$
 \end{definition}
+Note that this definition of a sampler is in fact a special case of a statistical estimator.
+Therefore we can analyze our sampler for estimator properties like bias and we will might also denote our samplers as estimators.
 
-Note, that this definition of a sampler is in fact a special case of a statistical estimator.
-Therefore we can analyze our sampler for estimator properties like bias and we sometimes denote our samplers as estimators.
 \subsection{\texttt{Naive} sampler}
 We will start by looking at an intuitive approach \cite{goldreich1997sample} for estimating $\bar{f}$ where we sample a set of nodes and poll each node $u$ to test if $f(u)=1$.
 The algorithm will return the fraction of nodes that satisfy the condition and we call this approach the \texttt{Naive} sampler presented in pseudo code in Alg. \ref{algnaive}.
@@ -40,21 +40,21 @@ The algorithm will return the fraction of nodes that satisfy the condition and w
 %---end algo2------------------------------------------
 In the analysis we use a uniform distribution $p$ where we pick each node $u$ with probability $p_u = 1/n$.
 \begin{theorem}
-  The \texttt{Naive} sampler with sampling probability $p_u = 1/n$, accuracy $\epsilon$ and confidence $1-\delta$ requires $\frac{1}{2\epsilon^2}\ln{\frac{2}{\delta}}$ sample nodes
+  The \texttt{Naive} sampler with sampling probability $p_u = 1/n$, accuracy $\epsilon$ and confidence $1-\delta$ requires $\frac{1}{2\epsilon^2}\ln{\frac{2}{\delta}}$ sample nodes.
 \end{theorem}
 \begin{proof}
 Recall that we want to poll $r$ uniformly chosen people independently and with replacement. The true fraction we want to approximate is $\bar{f}$. Let $F_u$ be the random variable for $f(u) = 1$.
 
 It follows that $F_u \sim  Bernoulli(\bar{f})$ and $F_1, F_2, \ldots , F_r$ are independent.
 Our \texttt{Naive} estimator is defined with $F = \sum_{u=1}^{r} F_u$ as $\hat{f} = F/r$.
-We want our estimate to have accuracy $\epsilon$ and confidence $1-\delta$. This means that the probability that our estimation differs from the real value with a maximum of $\epsilon$ is larger than our defined confidence value (respectively $1-\delta$).
-$$\mathds{P}[|\hat{f}-\bar{f} | \leq \epsilon] \quad\geq\quad 1-\delta$$
+We want our estimate to have accuracy $\epsilon$ and confidence $1-\delta$. This means that the probability that our estimation differs from the real value with a maximum of $\epsilon$ is larger than our defined confidence value (respectively $1-\delta$):
+$$\mathds{P}[|\hat{f}-\bar{f} | \leq \epsilon] \quad\geq\quad 1-\delta \;.$$
 Since $F \sim Binomial(r,\bar{f})$, it follows
-$$\textbf{E}[F] \quad=\quad \textbf{E}[\sum_{u=1}^{r} F_u] \quad=\quad \sum_{u=1}^{r}\textbf{E}[F_u] \quad=\quad r\bar{f}$$
+$$\textbf{E}[F] \quad=\quad \textbf{E}[\sum_{u=1}^{r} F_u] \quad=\quad \sum_{u=1}^{r}\textbf{E}[F_u] \quad=\quad r\bar{f}\;.$$
 We want to find a bound for the following expression:
-$$\mathds{P}[|F-\textbf{E}[F] \geq r\epsilon] \quad=\quad \mathds{P}[|F-r\bar{f} \geq r\epsilon] \quad=\quad \mathds{P}[|\hat{f}-\bar{f} \geq \epsilon]$$ 
+$$\mathds{P}[|F-\textbf{E}[F] \geq r\epsilon] \quad=\quad \mathds{P}[|F-r\bar{f} \geq r\epsilon] \quad=\quad \mathds{P}[|\hat{f}-\bar{f} \geq \epsilon]\;.$$ 
 Using the two-sided Hoeffding's inequality the following holds for any $\epsilon \geq 0$
-$$\quad \mathds{P}[|\hat{f}-\bar{f}|\geq \epsilon] \quad\leq\quad 2e^{-2r\epsilon^2}$$
+$$\quad \mathds{P}[|\hat{f}-\bar{f}|\geq \epsilon] \quad\leq\quad 2e^{-2r\epsilon^2}\;.$$
 %To achieve $\hat{f}$ bounded by $\epsilon$ we set $\epsilon = \gamma\bar{f}$, so $\gamma = \epsilon/\bar{f}$. Inserted in the formula above:
 %$$\mathds{P}[|\hat{f}-\bar{f}| \geq \epsilon] \quad\leq\quad 2\exp (-\frac{\epsilon^2/\bar{f}^2}{2+\epsilon/\bar{f}}\cdot r\bar{f}) \quad=\quad 2\exp(-\frac{\epsilon^2}{2\bar{f}+\epsilon}\cdot r)$$
 %Since the largest possible value of $\bar{f}$ is 1, if all nodes $u$ have $f(u) = 1$, the term in $\exp(\cdot)$ is an upper bound
@@ -68,21 +68,23 @@ Therefore:
 &\Leftrightarrow\quad2e^{-2r\epsilon^2} \quad\leq\quad \delta\\
 &\Leftrightarrow\quad e^{2r\epsilon^2} \quad\geq\quad \frac{2}{\delta}\\
 &\Leftrightarrow\quad 2r\epsilon^2 \quad\geq\quad \ln\frac{2}{\delta}\\
-&\Leftrightarrow\quad r \quad\geq\quad \frac{1}{2\epsilon^2}\ln{\frac{2}{\delta}} 
+&\Leftrightarrow\quad r \quad\geq\quad \frac{1}{2\epsilon^2}\ln{\frac{2}{\delta}} \;.
 \end{align*}
 %Since $\frac{2+\epsilon}{\epsilon^2}\ln\frac{2}{\delta}$ lies within $O(\frac{1}{\epsilon^2})$ this concludes the proof.$\hfill\square$
 % We set the sample size $r = \frac{ln(2/\gamma)}{2\epsilon^2}$ and consider the set of nodes $S$ with elements $u$ being drawn independently and uniformly distributed.
 % Using the Chernoff Bound the following inequality holds:
 % $$P[$$ 
 This matches the bound of $O(\frac{1}{\epsilon^2})$ proposed in the introduction and concludes the proof.
+
 \end{proof}
 
 Dasgupta et al. \cite{dasgupta2012social} proposed $r=2/(\epsilon^2\delta)$ and since $r=2/(\epsilon^2\delta) \geq \frac{1}{2\epsilon^2}\ln{\frac{2}{\delta}}$ this Lemma follows directly:
 \begin{lemma}
 Using $r=2/(\epsilon^2\delta)$ samples, with probability $1-\delta$ the \texttt{Naive} sampler will give an estimate $\hat{f}$ such that $|\hat{f}-\bar{f}|< \epsilon$.
 \end{lemma}
+\pagebreak
 \subsection{\texttt{Ideal} sampler}
-We now want to improve our estimator by using the concept of social polling, so basically when we poll a node $u$ we expect to get an estimation of ${f(v)\;|\;v \in N(u)}$ to decrease the number of samples needed.
+We now want to improve our estimator by using the concept of social polling. So basically when we poll a node $u$ we expect to get an estimation of ${f(v)\;|\;v \in N(u)}$ to decrease the number of samples needed.
 As briefly mentioned in the introduction the network structure is of great importance to the sampling method.
 We will illustrate this on a small example. Consider a graph structure as shown in \rfig{network_a} where a single \texttt{RED} node is connected to several \texttt{BLUE} nodes.
 Even though the portion of \texttt{RED} nodes is way smaller, using the \texttt{Naive} estimator the result is very biased towards the decision of {RED}.
@@ -160,7 +162,7 @@ Therefore we first provide a bound for the variance in the special case where no
 \end{align*}
 In fact our recently defined matrix $L$ has interesting properties. For a graph $G$ we can compute the Laplacian matrix $\mathcal{L}$ as $\mathcal{L} = D - A$ where $A$ is the adjacency matrix and $D$ the degree matrix as defined above.
 Taking $I-L$ is called the normalized Laplacian. Because of this association 
-It can be shown that the second largest eigenvalue of $L^2 = \lambda_2^2 = ||L^2 - \frac{D^{1/2}\mathds{1}\mathds{1}^TD^{1/2}}{2m}||$ and therefore $1-\lambda_2$ is the second smallest eigenvalue of the normalized Laplacian. The proof then follows.
+It can be shown that the second largest eigenvalue of $L^2$ equals $\lambda_2^2 = ||L^2 - \frac{D^{1/2}\mathds{1}\mathds{1}^TD^{1/2}}{2m}||$ and therefore $1-\lambda_2$ is the second smallest eigenvalue of the normalized Laplacian. The proof follows.
 \end{proof}
 
 We can now use this bound and the Chebyshev inequality to prove the following bound on $r$.
@@ -173,14 +175,14 @@ Using $r = \frac{2\textbf{var}(F)}{\epsilon^2\delta}$ and $p_u = \frac{d_u}{2m}$
 &\leq\quad \frac{2\textbf{var}(F)\epsilon^2\delta}{2\textbf{var}(F)\epsilon^2} \quad\leq\quad \delta \qedhere
 \end{align*}
 \end{proof}
-There are further, easier to compare bounds of the sample size if $G$ is $d-$regular and especially if the graph is an expander. Anyway, this requires a detailed look at the graphs properties and further investigations and is considered out of the scope of this paper \cite{alon1986eigenvalues}.
+There are further, easier to compare bounds of the sample size if $G$ is $d$-regular and especially if the graph is an expander. Anyway, this requires a detailed look at the graphs properties and further investigations and is considered out of the scope of this paper \cite{alon1986eigenvalues}.
 \subsection{\texttt{Sparse} sampler}
-The \texttt{Ideal} sampler samples all neighbors of the sampled node. Thinking back to social network this means a person is expected to represent all of its neighbors choices.
+The \texttt{Ideal} estimator samples \textit{all} neighbors of the sampled node. Thinking back to social network this means a person is expected to represent all of its neighbors choices.
 Now, we present a variant of this estimator that only samples a subset $T_u$ of $u$'s neighbors.
-This represents a scenario where either polling all neighbors is expensive respectively impossible (e.g. API limitations) or where we use further heuristics to select an arbitrary amount of neighbors. In the second case one could think of a poll like "\textit{Think of three of your female friends and tell us how many are married.}".
+This models a scenario where either polling all neighbors is expensive respectively impossible (e.g. API limitations) or where we use further heuristics to select an arbitrary amount of neighbors. In the second case one could think of a poll like "\textit{Think of three of your female friends and tell us how many are married.}".
 
-Be aware that this sampler uses an additional parameter called $k$. This is the size of set $T'_u$, a randomly chosen subset from $T_u$.
-We are aware this contradicts the initial definition of a sampler but we since $k$ has no usage in the other samplers we will stick to this defintition.
+This sampler uses an additional parameter called $k$, which is the size of set $T'_u$, a randomly chosen subset from $T_u$.
+We are aware this contradicts the initial definition of a sampler but we since $k$ has no usage in the other samplers we keep the original definition anyways while still calling the \texttt{Sparse} estimator a sampler.
 
 In this implementation we will pick each neighbor with probability inversly proportional to their degrees and pick the subset of $k$ neighbors with probability $1/|T_u|$.
 A pseudo code implementation is presented in Alg. \ref{algsparse}.
@@ -217,7 +219,7 @@ Providing a bound on variance and sample size is considered harder and not shown
 The final presented sampler, short \texttt{Expec}, is based on the research and ideas of Rothschild and Wolfers in \cite{rothschild2009forecasting}. They showed with statistical measurements that using a method called \textit{expectation polling} can lead to significantly better estimations than the classical \textit{intent polling}.
 In practise this means posing a "\textit{Which party will win the next vote?}" instead of "\textit{Who do you vote for?}".
 They base this on the assumption that a respondent often gives an aggregate view of its friends and family (i.e. neighbors in a social network).
-The presented algorithm Alg. \ref{algexpec} which aims to implement expectation polling lets each sampled node $u$ report a fraction instead of a simple 0 or 1. The fraction represents the estimated fraction of the neighbors with $f(v) = 1$.
+The presented algorithm Alg. \ref{algexpec}, which aims to implement expectation polling lets each sampled node $u$ report a fraction $G(u)$ instead of a simple 0 or 1. $G(u)$ represents the estimated fraction of the neighbors with $f(v) = 1$ and has values $r_u$ (see Alg. \ref{algexpec}) or $0$.
 
 Compared with the \texttt{Ideal} sampler there exist a similar bound on $r$ and we present this without a proof:
 \begin{theorem}
