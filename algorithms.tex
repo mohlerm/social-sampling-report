@@ -76,16 +76,14 @@ Therefore:
 % Using the Chernoff Bound the following inequality holds:
 % $$P[$$ 
 This matches the bound of $O(\frac{1}{\epsilon^2})$ proposed in the introduction and concludes the proof.
-
 \end{proof}
-
 Dasgupta et al. \cite{dasgupta2012social} proposed $r=2/(\epsilon^2\delta)$ and since $r=2/(\epsilon^2\delta) \geq \frac{1}{2\epsilon^2}\ln{\frac{2}{\delta}}$ this Lemma follows directly:
 \begin{lemma}
 Using $r=2/(\epsilon^2\delta)$ samples, with probability $1-\delta$ the \texttt{Naive} sampler will give an estimate $\hat{f}$ such that $|\hat{f}-\bar{f}|< \epsilon$.
 \end{lemma}
-\pagebreak
+
 \subsection{\texttt{Ideal} sampler}
-I now want to improve the previous estimator by using the concept of social polling. So basically when I poll a node $u$ I expect to get an estimation of ${f(v)\;|\;v \in N(u)}$ to decrease the number of samples needed.
+I now want to improve the previous estimator by using the concept of social sampling. So basically when I poll a node $u$ I expect to get an estimation of ${f(v)\;|\;v \in N(u)}$ to decrease the number of samples needed.
 As briefly mentioned in the introduction the network structure is of great importance to the sampling method.
 I will illustrate this on a small example. Consider a graph structure as shown in \rfig{network_a} where a single \texttt{RED} node is connected to several \texttt{BLUE} nodes.
 Even though the portion of \texttt{RED} nodes is way smaller, using the \texttt{Naive} estimator the result is very biased towards the decision of {RED} since it is included in the neighbor set of each sampled node.
@@ -103,7 +101,7 @@ I introduce a social polling sampler called \texttt{Ideal} sampler that circumve
 I am going to provide a proof that this sampler is indeed unbiased and again present bounds on the sampling size.
 %---algo2----------------------------------------------
 \begin{algorithm*}[!htb]
-\caption{\small {\bf Ideal sampler}($G, f, r, p$)}
+\caption{\small {\bf Ideal $\texttt{sampler}_f$}($r, \epsilon, \delta, p$)}
 \begin{code}
 {\bf Input:} Graph $G=(V,E)$, function $f : V \rightarrow \{0,1\}$, sample size $r$,\\ distribution $p$ \\
 {\bf Output:} $\hat{f}=\frac{1}{nr}\sum\nolimits_{u\in S}\frac{1}{p_u}\sum\nolimits_{v\in N(u)} f(v)/d_v$\\
@@ -192,7 +190,7 @@ A pseudo code implementation is presented in Alg. \ref{algsparse}.
 Providing a bound on variance and sample size is considered harder and not shown in this report.
 %---algo3----------------------------------------------
 \begin{algorithm*}[!htb]
-\caption{\small {\bf Sparse sampler}($G, f, r, p, k$)}
+\caption{\small {\bf Sparse $\texttt{sampler}_f$}($r, \epsilon, \delta, p, k$)}
 \begin{code}
 {\bf Input:} Graph $G=(V,E)$, function $f : V \rightarrow \{0,1\}$, sample size $r$,\\ distribution $p$, parameter $k$ \\
 {\bf Output:} $\hat{f}=\frac{1}{nr}\sum\nolimits_{u\in S}\frac{1}{p_u}(|T_u|/k)\sum\nolimits_{v\in T'_u} f(v)$\\
@@ -229,7 +227,7 @@ Using $r = \frac{4m\lambda_2^2||D^{-1/2}\mathds{F}||||D^{-1/2}(\mathds{1}-\mathd
 \end{theorem}
 %---algo4----------------------------------------------
 \begin{algorithm*}[!htb]
-\caption{\small {\bf Expec sampler}($G, f, r, p$)}
+\caption{\small {\bf Expec $\texttt{sampler}_f$}($r, \epsilon, \delta, p$)}
 \begin{code}
 {\bf Input:} Graph $G=(V,E)$, function $f : V \rightarrow \{0,1\}$, sample size $r$,\\ distribution $p$ \\
 {\bf Output:} $\hat{f}=\frac{1}{nr}\sum\nolimits_{u\in S}\frac{1}{p_u}G(u)$\\
