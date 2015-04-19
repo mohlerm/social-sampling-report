@@ -1,6 +1,6 @@
 \label{algorithms}
 \subsection{Definitions}
-Note that the graph $G = (V,E)$ describes a social network with $V$ denoting the set of nodes and $E$ the set of edges. Further, $|V| = n$, $|E| = m$ and $u,v$ are nodes of G. The set of neighbors of $u$ is denoted by $N(u)$ and the degree of node $u$ by $d_u=|N(u)|$. I will always assume $d_u\geq1\;\forall u$. Additionally, $f : V \rightarrow \{0,1\}$ is a binary function which takes a node $u \in V$ as input and outputs whether this node satisfies a certain property or not and $\bar{f} = \frac{1}{n}|\{u\;|\;f(u) = 1\}|$ is the fraction I wish to estimate.
+Note that the graph $G = (V,E)$ describes a social network with $V$ denoting the set of nodes and $E$ the set of edges. Further, $|V| = n$ and $u,v$ are nodes of G. The set of neighbors of $u$ is denoted by $N(u)$ and the degree of node $u$ by $d_u=|N(u)|$. I will always assume $d_u\geq1\;\forall u$. Additionally, $f : V \rightarrow \{0,1\}$ is a binary function which takes a node $u \in V$ as input and outputs whether this node satisfies a certain property or not and $\bar{f} = \frac{1}{n}|\{u\;|\;f(u) = 1\}|$ is the fraction I wish to estimate.
 The algorithms use $S$ as the set of nodes called \textit{sample} with $|S| = r$, the sample size.
 I will denote the probability distribution by a vector $p \in \mathbb{R}^n$ with $\sum_up_u = 1$.
 
@@ -8,7 +8,7 @@ The pollsters goal is to achieve a good estimation of $\bar{f}$ using as few sam
 I introduce the concept of a set of algorithms called sampler which is defined as follows:
 \begin{definition}[sampler]
 \label{defsampler}
-  A \texttt{sampler} is a randomized algorithm with input $r$ (sample size), $\epsilon$ (sampler accuracy), $\delta$ (sampler error), $p$ (probability distribution) and oracle access to any function $f$ which outputs an expectation $\hat{f}$ with probability $1-\delta$ and an error bounded by $|\hat{f}-\bar{f}|<\epsilon|$. Namely,
+  A \texttt{sampler} is a randomized algorithm with input $r$ (sample size), $\epsilon$ (sampler error), $\delta$ (error probability), $p$ (probability distribution) and oracle access to any function $f$ which outputs an expectation $\hat{f}$ with probability $1-\delta$ and an error bounded by $|\hat{f}-\bar{f}|<\epsilon|$. Namely,
   $$\mathds{P}[|\texttt{sampler}_f(r,\epsilon,\delta,p)-\bar{f} | > \epsilon] < \delta \;.$$
 \end{definition}
 This is a similar definition of the one shown in Goldreichs work \cite{goldreich1997sample}, extended to also include the probability distribution. 
@@ -39,8 +39,7 @@ The algorithm will return the fraction of nodes that satisfy the condition and I
   \label{algnaive}
 \end{algorithm*}
 %---end algo2------------------------------------------
-In the analysis I use a uniform distribution $p$ where I pick each node $u$ with probability $p_u = 1/n$. 
-\todo{zuruecklegen}
+In the analysis I use a uniform distribution $p$ where I pick each node $u$ with probability $p_u = 1/n$. Note that the drawing is done \textit{with replacement} to get independent random variables. Considering $n >> r$ there is a small but negligible chance we draw a node more than once.
 \begin{theorem}
   The \texttt{Naive} sampler with sampling probability $p_u = 1/n$, accuracy $\epsilon$ and confidence $1-\delta$ requires $\frac{1}{2\epsilon^2}\ln{\frac{2}{\delta}}$ sample nodes.
 \end{theorem}
@@ -48,13 +47,13 @@ In the analysis I use a uniform distribution $p$ where I pick each node $u$ with
 Recall that I want to poll $r$ uniformly chosen people independently and with replacement. The true fraction I want to approximate is $\bar{f}$. Let $F_u$ be the random variable for $f(u) = 1$.
 
 It follows that $F_u \sim  Bernoulli(\bar{f})$ and $F_1, F_2, \ldots , F_r$ are independent.
-The \texttt{Naive} estimator is defined with $F = \sum_{u=1}^{r} F_u$ as $\hat{f} = F/r$.
+The \texttt{Naive} estimator is defined as $\hat{f} = \frac{1}{r}\sum_{u=1}^{r} F_u$.
 I want my estimate to have accuracy $\epsilon$ and confidence $1-\delta$. This means that the probability that my estimation differs from the real value with a maximum of $\epsilon$ is larger than my defined confidence value (respectively $1-\delta$):
 $$\mathds{P}[|\hat{f}-\bar{f} | \leq \epsilon] \quad\geq\quad 1-\delta \;.$$
-Since $F \sim Binomial(r,\bar{f})$, it follows
-$$\textbf{E}[F] \quad=\quad \textbf{E}[\sum_{u=1}^{r} F_u] \quad=\quad \sum_{u=1}^{r}\textbf{E}[F_u] \quad=\quad r\bar{f}\;.$$
+Since $r\hat{f} \sim Binomial(r,\bar{f})$, it follows
+$$\textbf{E}[r\hat{f}] \quad=\quad \textbf{E}[r\frac{1}{r}\sum_{u=1}^{r} F_u] \quad=\quad \sum_{u=1}^{r}\textbf{E}[F_u] \quad=\quad r\bar{f}\;.$$
 I want to find a bound for the following expression:
-$$\mathds{P}[|F-\textbf{E}[F] \geq r\epsilon] \quad=\quad \mathds{P}[|F-r\bar{f} \geq r\epsilon] \quad=\quad \mathds{P}[|\hat{f}-\bar{f} \geq \epsilon]\;.$$ 
+$$\mathds{P}[|r\hat{f}-\textbf{E}[r\hat{f}]| \geq r\epsilon] \quad=\quad \mathds{P}[|r\hat{f}-r\bar{f}| \geq r\epsilon] \quad=\quad \mathds{P}[|\hat{f}-\bar{f}| \geq \epsilon]\;.$$ 
 Using the two-sided Hoeffding's inequality the following holds for any $\epsilon \geq 0$
 $$\quad \mathds{P}[|\hat{f}-\bar{f}|\geq \epsilon] \quad\leq\quad 2e^{-2r\epsilon^2}\;.$$
 %To achieve $\hat{f}$ bounded by $\epsilon$ we set $\epsilon = \gamma\bar{f}$, so $\gamma = \epsilon/\bar{f}$. Inserted in the formula above:
@@ -129,17 +128,19 @@ First and foremost, I introduce $A$ as adjacency matrix of the graph $G$, which 
 Let the diagonal matrix $P$ be $P_{uu} = p_u$ with $\sum\nolimits_{u}p_u = 1$ for any vector $p \in \mathbb{R}^n$.
 I also introduce $\mathds{F}$ which is the indicator (column) vector of the set ${u\;|\;f(u)=1}$, i.e., $\mathds{F}_u=f(u)$.
 $\mathds{1}$ is simply an $n$-element vector of all 1's.
-The \texttt{Ideal} sampler is defined with $F = \sum_{u}\frac{e_u^TAD^{-1}\mathds{F}}{np_u}$ as $\hat{f} = F/r$.
+$F_u = \frac{e_u^TAD^{-1}\mathds{F}}{np_u}$ is a random variable such that $F_u = f(u)$.
+To help understand this expression, note that $v$th entry of $D^{-1}f$ are the neighbors choices scaled with their degree and the $u$th entry of $AD^{-1}f$ is the respective sum $\sum_{v\in N(u)}f(v)/d_v$.
+The \texttt{Ideal} sampler is defined as $\hat{f} = \frac{1}{r}\sum_{u}F_u$.
 
 \begin{lemma}
-  The random variable $F$ satisfies $E[F] = \mathds{F}/n$ and \\
-  $E[F^2] = \frac{1}{n^2}\mathds{F}^TD^{-1}AP^{-1}AD^{-1}\mathds{F}$.
+  The random variable $F_u$ satisfies $E[F_u] = \mathds{F}/n$ and \\
+  $E[F_u^2] = \frac{1}{n^2}\mathds{F}^TD^{-1}AP^{-1}AD^{-1}\mathds{F}$.
 \end{lemma}
 \begin{proof}
 \begin{align*}
-\textbf{E}[F] \quad&=\quad \sum_u p_u \frac{e_u^TAD^{-1}\mathds{F}}{np_u} \quad=\quad \sum_u e_u^TAD^{-1}\mathds{F}/n \\
-&=\quad\mathds{1}^TAD^{-1}\mathds{F}/n \quad=\quad DD^{-1}\mathds{F}/n \quad=\quad \mathds{F}/n \\
-\textbf{E}[F^2] \quad&=\quad \sum_u p_u \bigg(\frac{e_u^TAD^{-1}\mathds{F}}{np_u}\bigg)^2 \quad=\quad \frac{1}{n^2}\sum_u \frac{(e_u^TAD^{-1}\mathds{F})^2}{p_u} \\
+\textbf{E}[F_u] \quad&=\quad \sum_u p_u \frac{e_u^TAD^{-1}\mathds{F}}{np_u} \quad=\quad \sum_u e_u^TAD^{-1}\mathds{F}/n \\
+&=\quad\mathds{1}^TAD^{-1}\mathds{F}/n \quad=\quad \mathds{1}^T\mathds{F}/n \quad=\quad \mathds{F}/n \\
+\textbf{E}[F_u^2] \quad&=\quad \sum_u p_u \bigg(\frac{e_u^TAD^{-1}\mathds{F}}{np_u}\bigg)^2 \quad=\quad \frac{1}{n^2}\sum_u \frac{(e_u^TAD^{-1}\mathds{F})^2}{p_u} \\
 &=\quad\frac{1}{n^2}\sum_u \mathds{F}^TD^{-1}Ae_ue_u^TAD^{-1}\mathds{F}/p_u \\
 &=\quad \mathds{F}^TD^{-1}A\bigg(\sum_ue_ue_u^T/p_u\bigg)AD^{-1}\mathds{F}/n^2 \\
 &=\quad \mathds{F}^TD^{-1}AP^{-1}AD^{-1}\mathds{F}/n^2 \qedhere
@@ -151,11 +152,11 @@ I still want to find a bound for the number of samples, similar to the \texttt{N
 Therefore I first provide a bound for the variance in the special case where nodes $u$ are sampled with probability proportional $|N(u)| = d_u$.
 
 \begin{lemma}
-  Let the sampling probability be $p_u = \frac{d_u}{2m}$. Then variance $\textbf{var}(F) \leq (2m/n^2)\lambda_2^2||D^{-1/2}f||^2$ with $\lambda_2$ being the second largest eigenvalue of matrix $L = D^{-1/2}AD^{-1/2}$. 
+  Let the sampling probability be $p_u = \frac{d_u}{2m}$. Then variance $\textbf{Var}(F_u) \leq (2m/n^2)\lambda_2^2||D^{-1/2}f||^2$ with $\lambda_2$ being the second largest eigenvalue of matrix $L = D^{-1/2}AD^{-1/2}$. 
 \end{lemma}
 \begin{proof}
 \begin{align*}
-\textbf{var}(F) \quad&=\quad \textbf{E}[F^2] - (\textbf{E}[F])^2 \quad=\quad \mathds{F}^TD^{-1}AP^{-1}AD^{-1}\mathds{F}/n^2 - (\mathds{F}/n)^2 \\
+\textbf{Var}(F_u) \quad&=\quad \textbf{E}[F_u^2] - (\textbf{E}[F_u])^2 \quad=\quad \mathds{F}^TD^{-1}AP^{-1}AD^{-1}\mathds{F}/n^2 - (\mathds{F}/n)^2 \\
 &=\quad \mathds{F}^TD^{-1}A(2mD^{-1})AD^{-1}\mathds{F}/n^2 - (\mathds{F}/n)^2\\
 &=\quad \frac{2m}{n^2}\mathds{F}^TD^{-1}AD^{-1}AD^{-1}\mathds{F} - (\mathds{F}/n)^2\\
 &=\quad \frac{2m}{n^2}\mathds{F}^TD^{-1/2}L^2D^{-1/2}\mathds{F}-\mathds{F}^T\mathds{1}\mathds{1}^T\mathds{F}/n^2\\
@@ -168,12 +169,12 @@ Taking $I-L$ is called the normalized Laplacian. Because of this association it 
 
 I can now use this bound and the Chebyshev inequality to prove the following bound on $r$.
 \begin{theorem}
-Using $r = \frac{2\textbf{var}(F)}{\epsilon^2\delta}$ and $p_u = \frac{d_u}{2m}$, with probability $1-\delta$ the \texttt{Ideal} sampler will give an estimate $\hat{f}$ such that $|\hat{f}-\bar{f}|< \epsilon$.  
+Using $r = \frac{2\textbf{Var}(F_u)}{\epsilon^2\delta}$ and $p_u = \frac{d_u}{2m}$, with probability $1-\delta$ the \texttt{Ideal} sampler will give an estimate $\hat{f}$ such that $|\hat{f}-\bar{f}|< \epsilon$.  
 \end{theorem}
 \begin{proof}
 \begin{align*}
-\mathds{P}[|\hat{f}-\bar{f}|\;>\epsilon] \quad&\leq\quad \frac{2\textbf{var}(\hat{f})}{\epsilon^2} \quad\leq\quad \frac{2\textbf{var}(\hat{F})}{r\epsilon^2} \\
-&\leq\quad \frac{2\textbf{var}(F)\epsilon^2\delta}{2\textbf{var}(F)\epsilon^2} \quad\leq\quad \delta \qedhere
+\mathds{P}[|\hat{f}-\bar{f}|\;>\epsilon] \quad&\leq\quad \frac{2\textbf{Var}(\hat{f})}{\epsilon^2} \quad\leq\quad \frac{2\textbf{Var}(\hat{F})}{r\epsilon^2} \\
+&\leq\quad \frac{2\textbf{Var}(F_u)\epsilon^2\delta}{2\textbf{Var}(F_u)\epsilon^2} \quad\leq\quad \delta \qedhere
 \end{align*}
 \end{proof}
 There are further, easier to compare bounds of the sample size if $G$ is $d$-regular and especially if the graph is an expander. Anyway, this requires a detailed look at the graphs properties and further investigations and is considered out of the scope of this report \cite{alon1986eigenvalues}.
