@@ -1,27 +1,28 @@
 \label{algorithms}
 \subsection{Definitions}
-Note that the graph $G = (V,E)$ describes a social network with $V$ denoting the set of nodes and $E$ the set of edges. Further, $|V| = n$ and $u,v$ are nodes of G. The set of neighbors of $u$ is denoted by $N(u)$ and the degree of node $u$ by $d_u=|N(u)|$. I will always assume $d_u\geq1\;\forall u$. Additionally, $f : V \rightarrow \{0,1\}$ is a binary function which takes a node $u \in V$ as input and outputs whether this node satisfies a certain property or not and $\bar{f} = \frac{1}{n}|\{u\;|\;f(u) = 1\}|$ is the fraction I wish to estimate.
+Note that the graph $G = (V,E)$ describes a social network with $V$ denoting the set of nodes and $E$ the set of edges. Further, $|V| = n$, $|E| = m$ and $u,v$ are nodes of G. The set of neighbors of $u$ is denoted by $N(u)$ and the degree of node $u$ by $d_u=|N(u)|$. I will always assume $d_u\geq1\;\forall u$. Additionally, $f : V \rightarrow \{0,1\}$ is a binary function which takes a node $u \in V$ as input and outputs whether this node satisfies a certain property or not and $\bar{f} = \frac{1}{n}|\{u\;|\;f(u) = 1\}|$ is the fraction I wish to estimate.
 The algorithms use $S$ as the set of nodes called \textit{sample} with $|S| = r$, the sample size.
-I will denote the probability distribution by a vector $p \in \mathbb{R}^n$ with $\sum_up_u = 1$.
+I will denote the probability of picking a node $u$ with $p_u$ for which holds $\sum_up_u = 1$.
 
 The pollsters goal is to achieve a good estimation of $\bar{f}$ using as few samples $S$ as possible with respect to an additive error bound $\epsilon$.
 I introduce the concept of a set of algorithms called sampler which is defined as follows:
 \begin{definition}[sampler]
 \label{defsampler}
-  A \texttt{sampler} is a randomized algorithm with input $r$ (sample size), $\epsilon$ (sampler error), $\delta$ (error probability), $p$ (probability distribution) and oracle access to any function $f$ which outputs an expectation $\hat{f}$ with probability $1-\delta$ and an error bounded by $|\hat{f}-\bar{f}|<\epsilon|$. Namely,
-  $$\mathds{P}[|\texttt{sampler}_f(r,\epsilon,\delta,p)-\bar{f} | > \epsilon] < \delta \;.$$
+  A \texttt{sampler} is a randomized algorithm with input $G$ (graph), $r$ (sample size), $\epsilon$ (sampler error), $\delta$ (error probability), $p$ (probability distribution) and oracle access to any function $f$ which outputs an expectation $\hat{f}$ with probability $1-\delta$ and an error bounded by $|\hat{f}-\bar{f}|<\epsilon|$. Namely,
+  $$\mathds{P}[|\texttt{sampler}_f(G, r,\epsilon,\delta,p)-\bar{f} | > \epsilon] < \delta \;.$$
 \end{definition}
-This is a similar definition of the one shown in Goldreichs work \cite{goldreich1997sample}, extended to also include the probability distribution. 
+This is a similar definition of the one shown in Goldreichs work \cite{goldreich1997sample}, extended to also include a graph and the probability distribution. 
+$\delta$ is the probability that a sampler satisfies the wanted sampling error. In statistics $1-\delta$ is often called the \textit{confidence} of the error. I do not put much emphasis on it in this work since I can set it arbitrarily low and considering I am mainly interested in comparing multiple samplers one would just choose the same $\delta$ for all sampler instances.
 Note that this definition of a sampler is in fact a special case of a statistical estimator.
 Therefore I can analyze a sampler for estimator properties like bias and I might also denote the samplers as estimators.
 
 \subsection{\texttt{Naive} sampler}
-I will start by looking at an intuitive approach, presented by Goldreich\cite{goldreich1997sample}and also Dasgupta\cite{dasgupta2012social} for estimating $\bar{f}$ where one samples a set of nodes and polls each node $u$ to test if $f(u)=1$.
+I will start by looking at an intuitive approach for estimating $\bar{f}$ where one samples a set of nodes uniformly and polls each node $u$ to test if $f(u)=1$.
 The algorithm will return the fraction of nodes that satisfy the condition and I call this approach the \texttt{Naive} sampler presented in pseudo code in Alg. \ref{algnaive}.
 
 %---algo1----------------------------------------------
 \begin{algorithm*}[!htb]
-  \caption{\small {\bf Naive $\texttt{sampler}_f$}($r, \epsilon, \delta, p$)}
+  \caption{\small {\bf Naive $\texttt{sampler}_f$}($G, r, \epsilon, \delta, p = 1/n$)}
   \begin{code}
   {\bf Input:} Graph $G=(V,E)$, function $f : V \rightarrow \{0,1\}$, sample size $r$ \\
   {\bf Output:} $\hat{f}=\frac{1}{r}\sum\nolimits_{u\in S} f(u)$\\
@@ -29,7 +30,7 @@ The algorithm will return the fraction of nodes that satisfy the condition and I
   \uln \>\ubegin\\
   \uln \>\>initialize $f^*$ with 0 \\
   \uln \>\>randomly draw a set $S$ with r samples from $V$ with\\
-  \>\>\>\>probability $p_u$ and with replacement\\
+  \>\>\>\>probability $p_u = 1/n$ and with replacement\\
   \uln \>\>\ufor each $u \in S$ \udo\\
   \uln \>\>\>$f^* = f^* + f(u)$ \\
   \uln \>\>\uend\\
@@ -39,22 +40,23 @@ The algorithm will return the fraction of nodes that satisfy the condition and I
   \label{algnaive}
 \end{algorithm*}
 %---end algo2------------------------------------------
-In the analysis I use a uniform distribution $p$ where I pick each node $u$ with probability $p_u = 1/n$. Note that the drawing is done \textit{with replacement} to get independent random variables. Considering $n >> r$ there is a small but negligible chance we draw a node more than once.
+Picking the samples uniformly means that each $u$ is chosen with probability $p_u = 1/n$. Note that the drawing is done \textit{with replacement} because considering $n >> r$ the possibility to draw a node twice is negligible and this has the effect of the drawings being independent from each other.
 \begin{theorem}
+\label{samplingtheorem}
   The \texttt{Naive} sampler with sampling probability $p_u = 1/n$, accuracy $\epsilon$ and confidence $1-\delta$ requires $\frac{1}{2\epsilon^2}\ln{\frac{2}{\delta}}$ sample nodes.
 \end{theorem}
 \begin{proof}
 Recall that I want to poll $r$ uniformly chosen people independently and with replacement. The true fraction I want to approximate is $\bar{f}$. Let $F_u$ be the random variable for $f(u) = 1$.
 
-It follows that $F_u \sim  Bernoulli(\bar{f})$ and $F_1, F_2, \ldots , F_r$ are independent.
+Since each of these drawings can be modeled by a coin flip with probabilities $\bar{f}$ and $1-\bar{f}$ it follows that $F_u \sim  Bernoulli(\bar{f})$ and $F_1, F_2, \ldots , F_r$ are independent. The expected value $\textbf{E}[F_u] = \bar{f}$ therefore each pick unbiased.
 The \texttt{Naive} estimator is defined as $\hat{f} = \frac{1}{r}\sum_{u=1}^{r} F_u$.
 I want my estimate to have accuracy $\epsilon$ and confidence $1-\delta$. This means that the probability that my estimation differs from the real value with a maximum of $\epsilon$ is larger than my defined confidence value (respectively $1-\delta$):
 $$\mathds{P}[|\hat{f}-\bar{f} | \leq \epsilon] \quad\geq\quad 1-\delta \;.$$
-Since $r\hat{f} \sim Binomial(r,\bar{f})$, it follows
+$\hat{f}$ multiplied by $r$ is therefore a sum of Bernoulli trials and per definition $r\hat{f} \sim Binomial(r,\bar{f})$. For the expected value follows:
 $$\textbf{E}[r\hat{f}] \quad=\quad \textbf{E}[r\frac{1}{r}\sum_{u=1}^{r} F_u] \quad=\quad \sum_{u=1}^{r}\textbf{E}[F_u] \quad=\quad r\bar{f}\;.$$
 I want to find a bound for the following expression:
 $$\mathds{P}[|r\hat{f}-\textbf{E}[r\hat{f}]| \geq r\epsilon] \quad=\quad \mathds{P}[|r\hat{f}-r\bar{f}| \geq r\epsilon] \quad=\quad \mathds{P}[|\hat{f}-\bar{f}| \geq \epsilon]\;.$$ 
-Using the two-sided Hoeffding's inequality the following holds for any $\epsilon \geq 0$
+Using the two-sided Hoeffding's inequality which provides an upper bound for a sum of random variables derivating from their expected values the following holds for any $\epsilon \geq 0$
 $$\quad \mathds{P}[|\hat{f}-\bar{f}|\geq \epsilon] \quad\leq\quad 2e^{-2r\epsilon^2}\;.$$
 %To achieve $\hat{f}$ bounded by $\epsilon$ we set $\epsilon = \gamma\bar{f}$, so $\gamma = \epsilon/\bar{f}$. Inserted in the formula above:
 %$$\mathds{P}[|\hat{f}-\bar{f}| \geq \epsilon] \quad\leq\quad 2\exp (-\frac{\epsilon^2/\bar{f}^2}{2+\epsilon/\bar{f}}\cdot r\bar{f}) \quad=\quad 2\exp(-\frac{\epsilon^2}{2\bar{f}+\epsilon}\cdot r)$$
@@ -75,7 +77,7 @@ Therefore:
 % We set the sample size $r = \frac{ln(2/\gamma)}{2\epsilon^2}$ and consider the set of nodes $S$ with elements $u$ being drawn independently and uniformly distributed.
 % Using the Chernoff Bound the following inequality holds:
 % $$P[$$ 
-This matches the bound of $O(\frac{1}{\epsilon^2})$ proposed in the introduction and concludes the proof.
+This matches the bound of Theorem \ref{samplingtheorem} and concludes the proof.
 \end{proof}
 Dasgupta et al. \cite{dasgupta2012social} proposed $r=2/(\epsilon^2\delta)$ and since $r=2/(\epsilon^2\delta) \geq \frac{1}{2\epsilon^2}\ln{\frac{2}{\delta}}$ this Lemma follows directly:
 \begin{lemma}
@@ -83,25 +85,12 @@ Using $r=2/(\epsilon^2\delta)$ samples, with probability $1-\delta$ the \texttt{
 \end{lemma}
 
 \subsection{\texttt{Ideal} sampler}
-I now want to improve the previous estimator by using the concept of social sampling. So basically when I poll a node $u$ I expect to get an estimation of ${f(v)\;|\;v \in N(u)}$ to decrease the number of samples needed.
-As briefly mentioned in the introduction the network structure is of great importance to the sampling method.
-I will illustrate this on a small example. Consider a graph structure as shown in \rfig{network_a} where a single \texttt{RED} node is connected to several \texttt{BLUE} nodes.
-Even though the portion of \texttt{RED} nodes is way smaller, using the \texttt{Naive} estimator the result is very biased towards the decision of {RED} since it is included in the neighbor set of each sampled node.
-%---figure network a------------------------------------
-\begin{figure}[!ht]
-  \begin{center}
-    \includegraphics{fig1a}
-    \caption{neighbor scaling}
-    \lfig{network_a}
-  \end{center}
-\end{figure}
-%---end figure network a--------------------------------
-
-I introduce a social polling sampler called \texttt{Ideal} sampler that circumvents this bias by dividing each $f(v)$ by $d_v$. The pseudo-code is shown in Alg. \ref{algideal}.
-I am going to provide a proof that this sampler is indeed unbiased and again present bounds on the sampling size.
+\label{algorithmideal}
+Now, I want to improve the previous estimator by using the concept of social sampling. So basically when I poll a node $u$ I expect to get an estimation of ${f(v)\;|\;v \in N(u)}$ to decrease the number of samples needed.
+I call this sampler \texttt{Ideal}\cite{dasgupta2012social} and the pseudo-code is shown in Alg. \ref{algideal}.
 %---algo2----------------------------------------------
 \begin{algorithm*}[!htb]
-\caption{\small {\bf Ideal $\texttt{sampler}_f$}($r, \epsilon, \delta, p$)}
+\caption{\small {\bf Ideal $\texttt{sampler}_f$}($G, r, \epsilon, \delta, p$)}
 \begin{code}
 {\bf Input:} Graph $G=(V,E)$, function $f : V \rightarrow \{0,1\}$, sample size $r$,\\ distribution $p$ \\
 {\bf Output:} $\hat{f}=\frac{1}{nr}\sum\nolimits_{u\in S}\frac{1}{p_u}\sum\nolimits_{v\in N(u)} f(v)/d_v$\\
@@ -112,16 +101,31 @@ I am going to provide a proof that this sampler is indeed unbiased and again pre
 \>   \>\>\>probability $p_u$ and with replacement\\
 \uln \>\>\ufor each $u \in S$ \udo\\
 \uln \>\>\>\ufor each $v \in N(u)$ \udo\\
-\uln \>\>\>\>$f^* = f^* + \frac{1}{p_u}f(v)/d_v$ \\
+\uln \>\>\>\>$f^* = f^* + \frac{1}{n p_u}f(v)/d_v$ \\
 \uln \>\>\>\uend\\
 \uln \>\>\uend\\
-\uln \>\ureturn $\hat{f} = \frac{f^*}{nr}$ \\
+\uln \>\ureturn $\hat{f} = \frac{f^*}{r}$ \\
 \uln \>\uend\\ 
 \end{code}
 \label{algideal}
 \end{algorithm*}
 %---end algo2------------------------------------------
 
+Before looking at sample size and error I want to explain the scaling of each $f(v)$ with $1/d_v$ on a small example.
+As briefly mentioned in the introduction the network structure is of great importance to the sampling method. Consider a graph structure as shown in \rfig{network_a} where a single \texttt{RED} node is connected to several \texttt{BLUE} nodes.
+Imagine a sampler that samples the blue nodes and for each includes the value of their neighbors. Even though the portion of \texttt{RED} nodes is way smaller, the result is very biased towards the decision of {RED} since it is included in the neighbor set of each sampled node. So a sampler dividing each of the neighbors values by it's degree undoes that bias.
+%---figure network a------------------------------------
+\begin{figure}[!ht]
+  \begin{center}
+    \includegraphics{fig1a}
+    \caption{neighbor scaling}
+    \lfig{network_a}
+  \end{center}
+\end{figure}
+%---end figure network a--------------------------------
+The factors $1/n$ and $1/p_u$ are needed because I now want to consider different, non-uniform $p_u$s compared to only uniform ones in the \texttt{Naive} sampler. This allows me to for for example to prefer nodes with more neighbors by giving them a higher sampling probability. The scaling itself will be more clear when looking at the expected value in Lemma \ref{lemmafu} and the bias property of the sampler.
+
+I am going to provide a proof that this sampler is indeed unbiased and again present bounds on the sampling size.
 First and foremost, I introduce $A$ as adjacency matrix of the graph $G$, which means $A_{uv} = 1$ if and only if $(u,v) \in E$. $D$ is called the diagonal matrix such that $D_{uu} = d_u$.
 Let the diagonal matrix $P$ be $P_{uu} = p_u$ with $\sum\nolimits_{u}p_u = 1$ for any vector $p \in \mathbb{R}^n$.
 I also introduce $\mathds{F}$ which is the indicator (column) vector of the set ${u\;|\;f(u)=1}$, i.e., $\mathds{F}_u=f(u)$.
@@ -131,26 +135,28 @@ To help understand this expression, note that $v$th entry of $D^{-1}f$ are the n
 The \texttt{Ideal} sampler is defined as $\hat{f} = \frac{1}{r}\sum_{u}F_u$.
 
 \begin{lemma}
-  The random variable $F_u$ satisfies $E[F_u] = \mathds{F}/n$ and \\
+\label{lemmafu}
+  The random variable $F_u$ satisfies $E[F_u] = \bar{f}$ and \\
   $E[F_u^2] = \frac{1}{n^2}\mathds{F}^TD^{-1}AP^{-1}AD^{-1}\mathds{F}$.
 \end{lemma}
 \begin{proof}
 \begin{align*}
 \textbf{E}[F_u] \quad&=\quad \sum_u p_u \frac{e_u^TAD^{-1}\mathds{F}}{np_u} \quad=\quad \sum_u e_u^TAD^{-1}\mathds{F}/n \\
-&=\quad\mathds{1}^TAD^{-1}\mathds{F}/n \quad=\quad \mathds{1}^T\mathds{F}/n \quad=\quad \mathds{F}/n \\
+&=\quad\mathds{1}^TAD^{-1}\mathds{F}/n \quad=\quad \mathds{1}^T\mathds{F}/n \quad=\quad \bar{f} \\
 \textbf{E}[F_u^2] \quad&=\quad \sum_u p_u \bigg(\frac{e_u^TAD^{-1}\mathds{F}}{np_u}\bigg)^2 \quad=\quad \frac{1}{n^2}\sum_u \frac{(e_u^TAD^{-1}\mathds{F})^2}{p_u} \\
 &=\quad\frac{1}{n^2}\sum_u \mathds{F}^TD^{-1}Ae_ue_u^TAD^{-1}\mathds{F}/p_u \\
 &=\quad \mathds{F}^TD^{-1}A\bigg(\sum_ue_ue_u^T/p_u\bigg)AD^{-1}\mathds{F}/n^2 \\
 &=\quad \mathds{F}^TD^{-1}AP^{-1}AD^{-1}\mathds{F}/n^2 \qedhere
 \end{align*}
 \end{proof}
-Since $\mathds{F}/n$ is a vectorial way of expressing the fraction $\bar{f}$ the estimator is indeed unbiased.
+Since the expected value of $F_u$ is $\bar{f}$ the estimator is indeed unbiased.
+This would not hold if each $f(v)$ is not scaled by $1/{np_u}$.
 
 I still want to find a bound for the number of samples, similar to the \texttt{Naive} sampler.
-Therefore I first provide a bound for the variance in the special case where nodes $u$ are sampled with probability proportional $|N(u)| = d_u$.
+Therefore I first provide a bound for the variance in the special case where nodes $u$ are sampled with probability proportional $|N(u)| = d_u$, meaning $p_u = \frac{d_u}{2m}$. As mentioned exemplary before this prefers high degree nodes and allows us to get an estimation of more nodes by using fewer samples. The division by $2m$ is needed to achieve $\sum_u{p_u} = 1$ because the sum of all degrees equals twice the total amount of edges.
 
 \begin{lemma}
-  Let the sampling probability be $p_u = \frac{d_u}{2m}$. Then variance $\textbf{Var}(F_u) \leq (2m/n^2)\lambda_2^2||D^{-1/2}f||^2$ with $\lambda_2$ being the second largest eigenvalue of matrix $L = D^{-1/2}AD^{-1/2}$. 
+  Let the sampling probability be $p_u = \frac{d_u}{2m}$. Then variance $\textbf{Var}(F_u) \leq (2m/n^2)\lambda_2^2||D^{-1/2}f||^2$ with $\lambda_2$ being the second largest eigenvalue of matrix $L$ defined as $L = D^{-1/2}AD^{-1/2}$. 
 \end{lemma}
 \begin{proof}
 \begin{align*}
@@ -161,7 +167,7 @@ Therefore I first provide a bound for the variance in the special case where nod
 &=\quad \frac{2m}{n^2}\mathds{F}^TD^{-1/2}\bigg(L^2-\frac{D^{1/2}\mathds{1}\mathds{1}^TD^{1/2}}{2m}\bigg)D^{-1/2}\mathds{F}\\
 &\leq\quad \frac{2m}{n^2}\bigg|\bigg|L^2 - \frac{D^{1/2}\mathds{1}\mathds{1}^TD^{1/2}}{2m}\bigg|\bigg|||D^{-1/2}\mathds{F}||^2
 \end{align*}
-In fact the recently defined matrix $L$ has interesting properties. For a graph $G$ I can compute the Laplacian matrix $\mathcal{L}$ as $\mathcal{L} = D - A$ where $A$ is the adjacency matrix and $D$ the degree matrix as defined above.
+In fact the recently defined matrix $L$ has interesting properties. For a graph $G$ one can compute the Laplacian matrix $\mathcal{L}$ as $\mathcal{L} = D - A$ where $A$ is the adjacency matrix and $D$ the degree matrix as defined above.
 Taking $I-L$ is called the normalized Laplacian. Because of this association it can be shown that the second largest eigenvalue of $L^2$ equals $\lambda_2^2 = ||L^2 - \frac{D^{1/2}\mathds{1}\mathds{1}^TD^{1/2}}{2m}||$ and therefore $1-\lambda_2$ is the second smallest eigenvalue of the normalized Laplacian. The proof follows.
 \end{proof}
 
@@ -175,7 +181,7 @@ Using $r = \frac{2\textbf{Var}(F_u)}{\epsilon^2\delta}$ and $p_u = \frac{d_u}{2m
 &\leq\quad \frac{2\textbf{Var}(F_u)\epsilon^2\delta}{2\textbf{Var}(F_u)\epsilon^2} \quad\leq\quad \delta \qedhere
 \end{align*}
 \end{proof}
-There are further, easier to compare bounds of the sample size if $G$ is $d$-regular and especially if the graph is an expander. Anyway, this requires a detailed look at the graphs properties and further investigations and is considered out of the scope of this report \cite{alon1986eigenvalues}.
+There are further, lower bounds of the sample size if $G$ is $d$-regular and especially if the graph is an expander. Anyway, this requires a detailed look at the graphs properties and further investigations and is considered out of the scope of this report \cite{alon1986eigenvalues}.
 \subsection{\texttt{Sparse} sampler}
 The \texttt{Ideal} estimator samples \textit{all} neighbors of the sampled node. Thinking back to social network this means a person is expected to represent all of its neighbors choices.
 Now, I present a variant of this estimator that only samples a subset $T_u$ of $u$'s neighbors.
@@ -190,7 +196,7 @@ A pseudo code implementation is presented in Alg. \ref{algsparse}.
 Providing a bound on variance and sample size is considered harder and not shown in this report.
 %---algo3----------------------------------------------
 \begin{algorithm*}[!htb]
-\caption{\small {\bf Sparse $\texttt{sampler}_f$}($r, \epsilon, \delta, p, k$)}
+\caption{\small {\bf Sparse $\texttt{sampler}_f$}($G, r, \epsilon, \delta, p, k$)}
 \begin{code}
 {\bf Input:} Graph $G=(V,E)$, function $f : V \rightarrow \{0,1\}$, sample size $r$,\\ distribution $p$, parameter $k$ \\
 {\bf Output:} $\hat{f}=\frac{1}{nr}\sum\nolimits_{u\in S}\frac{1}{p_u}(|T_u|/k)\sum\nolimits_{v\in T'_u} f(v)$\\
@@ -227,7 +233,7 @@ Using $r = \frac{4m\lambda_2^2||D^{-1/2}\mathds{F}||||D^{-1/2}(\mathds{1}-\mathd
 \end{theorem}
 %---algo4----------------------------------------------
 \begin{algorithm*}[!htb]
-\caption{\small {\bf Expec $\texttt{sampler}_f$}($r, \epsilon, \delta, p$)}
+\caption{\small {\bf Expec $\texttt{sampler}_f$}($G, r, \epsilon, \delta, p$)}
 \begin{code}
 {\bf Input:} Graph $G=(V,E)$, function $f : V \rightarrow \{0,1\}$, sample size $r$,\\ distribution $p$ \\
 {\bf Output:} $\hat{f}=\frac{1}{nr}\sum\nolimits_{u\in S}\frac{1}{p_u}G(u)$\\
