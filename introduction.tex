@@ -1,18 +1,30 @@
-Polling is a widely used method to achieve a public opinion on a certain subject gained from a sample. For example, one could think of a poll executed in a social network asking whether or not someone has watched the soccer finals or polls before Bundesrat elections to estimate the outcome.
-Following the second example, pollsters would like to ask only a subset of the population while still getting significant results which party might win the vote. This is commonly known as sampling.
-The two fundamental quantities of interest in sampling are \textit{number of samples} (how many citizens to ask) and the \textit{error rate} (error caused by observing a sample instead of the whole voters). Chapter \ref{algorithms} will provide the reader with a detailed analysis of these two properties and how they relate in different sampling algorithms.
-
-In practice we want to have a low error but still only require as few samples as possible.
-Since the sampling costs are usually a significant burden, research has proposed several alternatives to reduce the sample size.
-For instance instead of sampling uniformly one could choose its samples with a built in bias.
-However, as seen in chapter \ref{algorithmideal}, this method is vulnerable to introduce a so called \textit{systematic bias} which can lead to systematic errors in the outcome.
-
-Another, recently popular approach is to use \textit{expectation polling}, where voters are asked about their expected outcome of the poll. This stands in contrast to the classical \textit{intent polling}, where voters are asked about their polling intent. David Rothschild and Justin Wolvers explored the value of expectation polling in a paper published 2009 \cite{rothschild2009forecasting}. Considering the focus of press and pollsters on intent polling they call it conventional wisdom that results obtained by intent polling are more accurate. Nonetheless, executed on the example of Presidential Electoral College races they provide robust evidence that expectation based polling yields to more accurate predictions of election outcomes.
-Unfortunately they fall short on providing any theoretical guarantees on either the sampling bias or sampling error.
-
-What follows is a formal introduction to a group of estimators I call \textit{samplers} as well as four concrete instances of these type of estimators, suggested and described by Anirban Dasgupta, Ravi Kumar and D Sivakumar in \cite{dasgupta2012social}.
-I start with a \texttt{Naive} sampler and demonstrate how to prove the relation between the error $\epsilon$ and sample size $r$ in this simple example. Followed by an \texttt{Ideal} sampler where Dasgupta et al. incorporate the idea to reduce the sampling size by asking a member of a social network considering they will be able to summarize their friends opinions.
-The last two presented algorithms provide a more practical approach and try to model the method of expectation polling.
-
-I analyze sampling bias and provide theoretical relations between sample size and sampling error including some proofs.
-I will also provide precise characterizations on errors and how they behave applied to large, real-world networks on the basis of Dasgupta's work.
+(Language) Virtual Machines like the Java Virtual Machine (JVM) are used as the execution
+environment of choice for many modern programming languages. The VMs interpret a suitable
+intermediate language (e.g., Java Byte Code for the JVM) and provide the runtime system
+for application programs and usually include a garbage collector, a thread scheduler, interfaces
+to the host operating system. As interpretation of intermediate code is time-consuming, VMs
+include usually a Just-in-Time (JIT) compiler that translates frequently-executed functions or
+methods to “native” code (e.g., x86 instructions).
+The JIT compiler executes in parallel to a program’s interpretation by the VM, and as a re-
+sult, compilation speed is a critical issue in the design of a JIT compiler. Unfortunately, it is
+difficult to design a compiler such that the compiler produces good (or excellent) code while
+limiting the resource demands of this compiler (the compiler requires storage and cycles – and
+even on a multi-core processor, compilation may slow down the execution of the application
+program). Consequently, most VMs adopt a multi-tier compilation system. The first tier is the
+interpretation of a method. If this method is “hot”, the Tier-1 compiler translates this method
+into a native code. The Tier-1 compiler implements only a small set of the know optimization
+techniques and as result, it had good compilation speed but the generated code is far from the
+output of an optimizing compiler. Such a compiler is usually the Tier-2 compiler, which takes a
+longer amount of time and produces optimized native code. To determine which methods should
+be compiled by the Tier-1 (or Tier-2) compiler, the VM profiles the execution of all application
+programs to identify “hot” methods.
+In current VMs, at program startup, all methods are interpreted by the VM (execution at Tier-
+0). The interpreter performs profiling, and if a method is determined to be “hot”, this method is
+then compiled by the Tier-1 compiler (fast compilation, few optimizations). Methods compiled
+to Tier 1 are then profiled further (and more extensively). Based on that profiling information,
+some methods are eventually compiled at Tier 2 (slow compilation, many optimizations).
+One of the drawbacks of this setup is that for all programs, all methods start in Tier 0, with
+interpretation and profiling by the VM. However, for many programs the set of “hot” methods
+does not change from one execution to another and there is no reason to gather again and again
+the profiling information. Cached profiles would allow the VM to compile some methods right
+away.
