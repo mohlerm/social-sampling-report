@@ -185,7 +185,7 @@ There are further, lower bounds of the sample size if $G$ is $d$-regular and esp
 \subsection{\texttt{Sparse} sampler}
 The \texttt{Ideal} estimator samples \textit{all} neighbors of the sampled node. Thinking back to a social network this means that a person is expected to represent all of their neighbors' choices.
 Now, I present a variant of this estimator that only samples a subset $T_u$ of $u$'s neighbors.
-This models a scenario where either polling all neighbors is expensive respectively impossible (e.g. API limitations) or where we use further heuristics to select an arbitrary amount of neighbors. In the second case one could think of a poll like "\textit{Think of three of your female friends and tell us how many are married.}".
+This models a scenario where either polling all neighbors is expensive or impossible (e.g. API limitations) or where we use further heuristics to select an arbitrary amount of neighbors. In the second case one could think of a poll like "\textit{Think of three of your female friends and tell us how many are married.}".
 
 This sampler uses an additional parameter called $k$, which is the size of the set $T'_u$, a randomly chosen subset from $T_u$.
 I am aware this contradicts the initial definition of a sampler but since $k$ has no usage in the other samplers I keep the original definition anyways while still calling the \texttt{Sparse} estimator a sampler.
