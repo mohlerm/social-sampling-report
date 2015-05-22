@@ -1,18 +1,18 @@
-Polling is a widely used method to achieve a public opinion on a certain subject gained from a sample. For example, one could think of a poll executed in a social network asking whether or not someone has watched the soccer finals or polls before Bundesrat elections to estimate the outcome.
-Following the second example, pollsters would like to ask only a subset of the population while still getting significant results which party might win the vote. This is commonly known as sampling.
-The two fundamental quantities of interest in sampling are \textit{number of samples} (how many citizens to ask) and the \textit{error rate} (error caused by observing a sample instead of the whole voters). Chapter \ref{algorithms} will provide the reader with a detailed analysis of these two properties and how they relate in different sampling algorithms.
+Polling is a widely used method to achieve a public opinion on a certain subject gained from a sample. For example, one could think of a poll executed in a social network asking whether or not someone has watched the soccer finals or polls before elections to estimate the outcome.
+In the second example, pollsters would like to ask only a subset of the population and deduce significant results about which party might win the vote. This is commonly known as sampling.
+The two fundamental quantities of interest in sampling are \textit{number of samples} (how many citizens to ask) and the \textit{error rate} (error caused by observing a sample instead of the whole voters). A detailed analysis of these two properties and how they relate in different sampling algorithms will be shown in Chapter \ref{algorithms}.
 
-In practice we want to have a low error but still only require as few samples as possible.
-Since the sampling costs are usually a significant burden, research has proposed several alternatives to reduce the sample size.
-For instance instead of sampling uniformly one could choose its samples with a built in bias.
-However, as seen in chapter \ref{algorithmideal}, this method is vulnerable to introduce a so called \textit{systematic bias} which can lead to systematic errors in the outcome.
+In practice, we want to achieve a low error while requiring as few samples as possible.
+Since the sampling costs are usually high, research has proposed several alternatives to reduce the sample size.
+For instance, instead of sampling uniformly, one could choose their samples with a built in bias.
+However, as seen in chapter \ref{algorithmideal}, this method is vulnerable to introducing a so called \textit{systematic bias} which can lead to systematic errors in the outcome.
 
-Another, recently popular approach is to use \textit{expectation polling}, where voters are asked about their expected outcome of the poll. This stands in contrast to the classical \textit{intent polling}, where voters are asked about their polling intent. David Rothschild and Justin Wolvers explored the value of expectation polling in a paper published 2009 \cite{rothschild2009forecasting}. Considering the focus of press and pollsters on intent polling they call it conventional wisdom that results obtained by intent polling are more accurate. Nonetheless, executed on the example of Presidential Electoral College races they provide robust evidence that expectation based polling yields to more accurate predictions of election outcomes.
-Unfortunately they fall short on providing any theoretical guarantees on either the sampling bias or sampling error.
+Another, recently popular approach is to use \textit{expectation polling}, where voters are asked about their expected outcome of the poll. This stands in contrast to the classical \textit{intent polling}, where voters are asked about their polling intent. David Rothschild and Justin Wolvers explored the value of expectation polling in a paper published 2009 \cite{rothschild2009forecasting}. Considering the focus of press and pollsters on intent polling, Rothschild and Wolvers call it conventional wisdom that results obtained by intent polling are more accurate. Nonetheless, when executed on the example of Presidential Electoral College races, they provide robust evidence that expectation based polling yields more accurate predictions of election outcomes.
+Unfortunately, they fall short on providing any theoretical guarantees on either the sampling bias or sampling error.
 
-What follows is a formal introduction to a group of estimators I call \textit{samplers} as well as four concrete instances of these type of estimators, suggested and described by Anirban Dasgupta, Ravi Kumar and D Sivakumar in \cite{dasgupta2012social}.
-I start with a \texttt{Naive} sampler and demonstrate how to prove the relation between the error $\epsilon$ and sample size $r$ in this simple example. Followed by an \texttt{Ideal} sampler where Dasgupta et al. incorporate the idea to reduce the sampling size by asking a member of a social network considering they will be able to summarize their friends opinions.
-The last two presented algorithms provide a more practical approach and try to model the method of expectation polling.
+What follows is a formal introduction to a group of estimators I call \textit{samplers} as well as four concrete instances of this type of estimators, suggested and described by Anirban Dasgupta, Ravi Kumar and D. Sivakumar in \cite{dasgupta2012social}.
+I start with a \texttt{Naive} sampler and demonstrate how to prove the relation between the error $\epsilon$ and sample size $r$ in this simple example. Then I present an \texttt{Ideal} sampler where Dasgupta et al. incorporate the idea of reducing the sampling size by asking a member of a social network considering they will be able to summarize their friends' opinions.
+The last two algorithms presented provide a more practical approach and try to model the method of expectation polling.
 
-I analyze sampling bias and provide theoretical relations between sample size and sampling error including some proofs.
-I will also provide precise characterizations on errors and how they behave applied to large, real-world networks on the basis of Dasgupta's work.
+I analyze sampling bias and provide theoretical relations between sample size $r$ and sampling error $\epsilon$ including proofs.
+I will also provide precise characterizations of errors and how they behave when applied to large, real-world networks on the basis of Dasgupta's work.
